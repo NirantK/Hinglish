@@ -15,7 +15,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
         return re.sub(r"@\w+", "", text)
 
     def remove_urls(self, text):
-        return re.sub(r"http.?://[^\s]+[\s]?", "", text)
+        return = re.sub(r'^https?:\/\/.*[\r\n]*', '', text, flags=re.MULTILINE)
 
     def only_characters(self, text):
         return re.sub("[^a-zA-Z\s]", "", text)
