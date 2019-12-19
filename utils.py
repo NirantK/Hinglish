@@ -79,9 +79,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
 
     def transform(self, X, **transform_params):
         clean_X = (
-            X.apply(self.remove_mentions)
-            .apply(self.remove_urls)
-            .apply(self.remove_hashtags)
+            X.apply(self.remove_urls)
             .apply(self.only_characters)
             .apply(self.remove_extra_spaces)
             .apply(self.to_lower)
