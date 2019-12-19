@@ -12,10 +12,13 @@ from sklearn.preprocessing import LabelEncoder
 
 class TextCleaner(BaseEstimator, TransformerMixin):
     def remove_mentions(self, text):
-        return re.sub(r"@\w+", "", text)
+        return re.sub(r"@\s\w+", "", text)
+
+    def remove_hashtags(self, text):
+        return re.sub(r"#\s\w+", "", text)
 
     def remove_urls(self, text):
-        return re.sub(r"http.?://[^\s]+[\s]?", "", text)
+        return re.sub(r"http\S+", "", text)
 
     def only_characters(self, text):
         return re.sub("[^a-zA-Z\s]", "", text)
@@ -29,6 +32,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
         return text.lower()
 
     def fix_words(self, text):
+        text = re.sub(r"\brt\b", " ", text)
         text = re.sub(r"\bthx\b", "thanks", text)
         text = re.sub(r"\bu\b", "you", text)
         text = re.sub(r"\bhrs\b", "hours", text)
@@ -75,8 +79,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
 
     def transform(self, X, **transform_params):
         clean_X = (
-            X.apply(self.remove_mentions)
-            .apply(self.remove_urls)
+            X.apply(self.remove_urls)
             .apply(self.only_characters)
             .apply(self.remove_extra_spaces)
             .apply(self.to_lower)
