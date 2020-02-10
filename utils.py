@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import re
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), fontsize=14):
     """Prints a confusion matrix, as returned by sklearn.metrics.confusion_matrix, as a heatmap.
@@ -35,3 +36,23 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), font
     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+
+def clean(df, col):
+    """Cleaning Twiitter data
+    
+    Arguments:
+        df {[pandas dataframe]} -- Dataset that needs to be cleaned
+        col {[string]} -- column in which text is present
+    
+    Returns:
+        [pandas dataframe] -- Datframe with a "clean_text" column
+    """    
+    df["clean_text"] = df[col]
+    df["clean_text"] = (
+        (df["clean_text"])
+            .apply(lambda text: re.sub(r"RT\s@\w+:", "Retweet", text)) #Removes RTS
+            .apply(lambda text: re.sub(r"@", "mention ", text)) # Replaces @ with mention
+            .apply(lamb            da text: re.sub(r"#", "hashtag ", text)) # Replaces # with hastag
+            .apply(lambda text: re.sub(r"http\S+", "", text)) # Removes URL
+        )
+    return df
