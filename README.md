@@ -1,5 +1,8 @@
 # Hinglish
-State-of-the-Art Hinglish Sentiment Classification
+Tools and Data
+
+![Logo](./Hinglish-Logo.png)
+
 
 Approach | LM Perplexity | Classifier F1 |
 ---| --- | ---|
