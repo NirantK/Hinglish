@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import gdown
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), fontsize=14):
     """Prints a confusion matrix, as returned by sklearn.metrics.confusion_matrix, as a heatmap.
@@ -35,3 +36,9 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), font
     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+
+
+def get_files_from_gdrive(url: str, fname: str) -> None:
+    file_id = url.split("/")[5]
+    url = f"https://drive.google.com/uc?id={file_id}"
+    gdown.download(url, fname, quiet=False)
