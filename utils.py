@@ -118,3 +118,8 @@ def CleanTwitter(train, label="sentiment", text="text"):
     tfidf_train = vect.fit_transform(X_train)
     tfidf_test = vect.transform(X_test)
     return X_train, X_test, y_train, y_test, tfidf_train, tfidf_test
+
+def get_files_from_gdrive(url: str, fname: str) -> None:
+    file_id = url.split("/")[5]
+    url = f"https://drive.google.com/uc?id={file_id}"
+    gdown.download(url, fname, quiet=False)
