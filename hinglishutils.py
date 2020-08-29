@@ -59,7 +59,7 @@ def clean(df, col):
         (df["clean_text"])
             .apply(lambda text: re.sub(r"RT\s@\w+:", "Retweet", text)) #Removes RTS
             .apply(lambda text: re.sub(r"@", "mention ", text)) # Replaces @ with mention
-            .apply(lamb            da text: re.sub(r"#", "hashtag ", text)) # Replaces # with hastag
+            .apply(lambda text: re.sub(r"#", "hashtag ", text)) # Replaces # with hastag
             .apply(lambda text: re.sub(r"http\S+", "", text)) # Removes URL
         )
     return df
