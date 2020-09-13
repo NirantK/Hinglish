@@ -32,6 +32,7 @@ def hinglishDistilBert(
     adam_epsilon=1e-8,
     hidden_dropout_prob=0.3,
     input_name="DistilBert",
+    epochs=3
 ):
     global name
     name = input_name
@@ -73,7 +74,6 @@ def hinglishDistilBert(
         lr=learning_rate,
         eps=adam_epsilon,
     )
-    epochs = 3
     total_steps = len(train_dataloader) * epochs
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
