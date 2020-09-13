@@ -32,7 +32,7 @@ def hinglishbert(
     adam_epsilon=1e-8,
     hidden_dropout_prob=0.3,
     input_name="bert",
-    epochs=3
+    epochs=3,
 ):
     global name
     name = input_name

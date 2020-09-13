@@ -32,7 +32,7 @@ def hinglishDistilBert(
     adam_epsilon=1e-8,
     hidden_dropout_prob=0.3,
     input_name="DistilBert",
-    epochs=3
+    epochs=3,
 ):
     global name
     name = input_name
@@ -163,7 +163,7 @@ def hinglishDistilBert(
         tokenizer, MAX_LEN, model, device, le, final_name="test.json", name=name
     )
     full_output = evaluate_final_text(
-        tokenizer, MAX_LEN, model, device, le, final_name="final_test.json",name=name
+        tokenizer, MAX_LEN, model, device, le, final_name="final_test.json", name=name
     )
 
     l = pd.read_csv("test_labels_hinglish.txt")
@@ -275,7 +275,9 @@ def train_model(
 
 
 def load_lm_model(config):
-    model = DistilBertForSequenceClassification.from_pretrained("distilBert6", config=config)
+    model = DistilBertForSequenceClassification.from_pretrained(
+        "distilBert6", config=config
+    )
     model.cuda()
     params = list(model.named_parameters())
     return model
