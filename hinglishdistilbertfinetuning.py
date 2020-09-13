@@ -45,7 +45,7 @@ def hinglishDistilBert(
     open(f"{name}.log", "w").write(f"------ Starting for model {name}------\n")
     sentences, labels, le = load_sentences_and_labels()
     device_name = tf.test.gpu_device_name()
-    device = check_for_gpu(device_name)
+    device = check_for_gpu(device_name, name)
     tokenizer, input_ids = tokenize_the_sentences(sentences)
     input_ids, MAX_LEN = add_padding(tokenizer, input_ids)
     attention_masks = create_attention_masks(input_ids)
@@ -167,10 +167,10 @@ def hinglishDistilBert(
         loss_values,
     )
     _ = evaluate_final_text(
-        tokenizer, MAX_LEN, model, device, le, final_name="test.json"
+        tokenizer, MAX_LEN, model, device, le, final_name="test.json", name=name
     )
     full_output = evaluate_final_text(
-        tokenizer, MAX_LEN, model, device, le, final_name="final_test.json"
+        tokenizer, MAX_LEN, model, device, le, final_name="final_test.json",name=name
     )
 
     l = pd.read_csv("test_labels_hinglish.txt")
@@ -282,7 +282,7 @@ def train_model(
 
 
 def load_lm_model(config):
-    model = DistilBertForSequenceClassification.from_pretrained("output", config=config)
+    model = DistilBertForSequenceClassification.from_pretrained("distilBert6", config=config)
     model.cuda()
     params = list(model.named_parameters())
     return model

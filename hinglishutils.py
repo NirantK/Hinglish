@@ -132,9 +132,9 @@ def all_the_important_configs(
     if model == "bert":
         config = BertConfig.from_json_file("model_save/config.json")
     elif model == "distilbert":
-        config = DistilBertConfig.from_json_file("output/config.json")
+        config = DistilBertConfig.from_json_file("distilBert6/config.json")
     elif model == "roberta":
-        config = RobertaConfig.from_json_file("output/config.json")
+        config = RobertaConfig.from_json_file("roberta3/config.json")
     config.attention_probs_dropout_prob = attention_probs_dropout_prob
     config.do_sample = True
     config.num_beams = 500
@@ -146,7 +146,7 @@ def all_the_important_configs(
     return batch_size, config, learning_rate, adam_epsilon
 
 
-def check_for_gpu(device_name):
+def check_for_gpu(device_name, name):
 
     if device_name == "/device:GPU:0":
         open(f"{name}.log", "a").write("Found GPU at: {}\n".format(device_name))
@@ -167,7 +167,7 @@ def load_sentences_and_labels():
     return sentences, labels, le
 
 
-def evaluate_final_text(tokenizer, MAX_LEN, model, device, le, final_name):
+def evaluate_final_text(tokenizer, MAX_LEN, model, device, le, final_name, name):
     final_test_df = pd.read_json(final_name)
     sentences = final_test_df["clean_text"]
 
@@ -337,7 +337,7 @@ def create_attention_masks(input_ids):
     return attention_masks
 
 
-def add_padding(tokenizer, input_ids):
+def add_padding(tokenizer, input_ids, name):
 
     MAX_LEN = 300
 
