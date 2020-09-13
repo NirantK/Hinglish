@@ -284,7 +284,7 @@ def load_lm_model(config):
 def tokenize_the_sentences(sentences):
 
     open(f"{name}.log", "a").write("Loading DistilBert tokenizer...\n")
-    tokenizer = DistilBertTokenizer.from_pretrained("distilbert6")
+    tokenizer = DistilBertTokenizer.from_pretrained("distilBert6")
     tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
     open(f"{name}.log", "a").write("Tokenize the first sentence:\n")
     open(f"{name}.log", "a").write(str(tokenized_texts[0]))
