@@ -40,7 +40,7 @@ def hinglishbert(
     device_name = tf.test.gpu_device_name()
     device = check_for_gpu(device_name, name)
     tokenizer, input_ids = tokenize_the_sentences(sentences)
-    input_ids, MAX_LEN = add_padding(tokenizer, input_ids)
+    input_ids, MAX_LEN = add_padding(tokenizer, input_ids, name)
     attention_masks = create_attention_masks(input_ids)
     (
         train_inputs,
