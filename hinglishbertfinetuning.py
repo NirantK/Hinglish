@@ -22,14 +22,7 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-from hinglishutils import (
-    all_the_important_configs,
-    check_for_gpu,
-    flat_accuracy,
-    flat_prf,
-    format_time,
-    load_sentences_and_labels,
-)
+from hinglishutils import *
 
 
 def hinglishbert(
