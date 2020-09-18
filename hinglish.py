@@ -22,8 +22,22 @@ from transformers import (
     get_cosine_with_hard_restarts_schedule_with_warmup,
     get_linear_schedule_with_warmup,
 )
-
-from hinglishutils import *
+import tensorflow as tf
+from hinglishutils import (
+    check_for_gpu,
+    load_sentences_and_labels,
+    tokenize_the_sentences,
+    add_padding,
+    create_attention_masks,
+    load_masks_and_inputs,
+    all_the_important_configs,
+    make_dataloaders,
+    load_lm_model,
+    set_seed,
+    train_model,
+    evaluate_final_text,
+    save_model
+)
 from datetime import datetime
 
 logger = logging.getLogger("hinglish")
@@ -133,11 +147,9 @@ class HinglishTrainer:
             self.epochs,
             self.model,
             self.train_dataloader,
-            format_time,
             self.device,
             optimizer,
             scheduler,
-            run_valid,
             loss_values,
             self.model_name,
             self.validation_dataloader

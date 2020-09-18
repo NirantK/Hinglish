@@ -426,11 +426,9 @@ def train_model(
     epochs,
     model,
     train_dataloader,
-    format_time,
     device,
     optimizer,
     scheduler,
-    run_valid,
     loss_values,
     model_name,
     validation_dataloader
