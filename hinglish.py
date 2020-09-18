@@ -22,7 +22,6 @@ from transformers import (
     get_cosine_with_hard_restarts_schedule_with_warmup,
     get_linear_schedule_with_warmup,
 )
-import tensorflow as tf
 from hinglishutils import (
     check_for_gpu,
     load_sentences_and_labels,
@@ -81,8 +80,7 @@ class HinglishTrainer:
         logger.info(f"Hidden Dropout Probability - {self.hidden_dropout_prob}")
         logger.info(f"Epochs - {self.epochs}")
         logger.info("--------------------------------")
-        self.device_name = tf.test.gpu_device_name()
-        self.device = check_for_gpu(self.device_name, self.model_name)
+        self.device = check_for_gpu(self.model_name)
         self.lm_model_dir = lm_model_dir
         if not lm_model_dir:
             if self.model_name == "bert":

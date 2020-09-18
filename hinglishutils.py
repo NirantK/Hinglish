@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import tensorflow as tf
 import torch
 from IPython.display import clear_output
 from keras.preprocessing.sequence import pad_sequences
@@ -151,14 +150,8 @@ def modify_transformer_config(
     return config
 
 
-def check_for_gpu(device_name, name):
-
-    if device_name == "/device:GPU:0":
-        open(f"{name}.log", "a").write("Found GPU at: {}\n".format(device_name))
-        device = torch.device("cuda")
-    else:
-        raise SystemError("GPU device not found")
-    return device
+def check_for_gpu(name):
+    return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def load_sentences_and_labels():
