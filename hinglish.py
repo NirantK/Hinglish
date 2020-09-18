@@ -141,6 +141,7 @@ class HinglishTrainer:
             run_valid,
             loss_values,
             self.model_name,
+            self.validation_dataloader
         )
 
     def evaluate(

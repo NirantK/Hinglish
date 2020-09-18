@@ -24,6 +24,8 @@ from transformers import (
     DistilBertForSequenceClassification,
     RobertaForSequenceClassification,
     BertTokenizer,
+    DistilBertTokenizer,
+    RobertaTokenizer,
     DistilBertConfig,
     RobertaConfig,
     get_cosine_with_hard_restarts_schedule_with_warmup,
@@ -431,6 +433,7 @@ def train_model(
     run_valid,
     loss_values,
     model_name,
+    validation_dataloader
 ):
     for epoch_i in range(0, epochs):
 
@@ -490,7 +493,7 @@ def train_model(
             scheduler.step()
 
         elapsed = format_time(time.time() - t0)
-        run_valid()
+        run_valid(model, model_name, validation_dataloader, device)
 
         avg_train_loss = total_loss / len(train_dataloader)
 
