@@ -146,9 +146,7 @@ def all_the_important_configs(
     config.hidden_dropout_prob = hidden_dropout_prob
     config.repetition_penalty = 5
     config.num_labels = 3
-
-    config
-    return batch_size, config, learning_rate, adam_epsilon
+    return config
 
 
 def check_for_gpu(device_name, name):
