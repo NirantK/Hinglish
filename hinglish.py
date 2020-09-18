@@ -113,87 +113,29 @@ class HinglishTrainer:
             num_warmup_steps=100,
             num_training_steps=total_steps,
         )
-
-
-def train_model(
-    epochs,
-    model,
-    train_dataloader,
-    format_time,
-    device,
-    optimizer,
-    scheduler,
-    run_valid,
-    loss_values,
-    name,
-):
-    for epoch_i in range(0, epochs):
-
-        logger.info("Training...\n")
-
-        t0 = time.time()
-
-        total_loss = 0
-
-        model.train()
-
-        for step, batch in enumerate(train_dataloader):
-            clear_output(wait=True)
-
-            if step % 40 == 0 and not step == 0:
-                logger.info(
-                    "======== Epoch {:} / {:} ========\n".format(epoch_i + 1, epochs)
-                )
-
-                elapsed = format_time(time.time() - t0)
-
-                logger.info(
-                    "  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.\n".format(
-                        step, len(train_dataloader), elapsed
-                    )
-                )
-
-            b_input_ids = batch[0].to(device)
-            b_input_mask = batch[1].to(device)
-            b_labels = batch[2].to(device)
-
-            model.zero_grad()
-
-            outputs = model(
-                b_input_ids,
-                token_type_ids=None,
-                attention_mask=b_input_mask,
-                labels=b_labels,
-            )
-
-            loss = outputs[0]
-
-            total_loss += loss.item()
-
-            loss.backward()
-
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-
-            optimizer.step()
-
-            scheduler.step()
-
-        elapsed = format_time(time.time() - t0)
-        run_valid()
-
-        avg_train_loss = total_loss / len(train_dataloader)
-
-        loss_values.append(avg_train_loss)
-
-        logger.info("")
-        logger.info(
-            "  Average training loss: {0:.2f}\n".format(avg_train_loss)
+        set_seed()
+        loss_values = []
+        train_model(
+            self.epochs,
+            model,
+            train_dataloader,
+            format_time,
+            self.device,
+            optimizer,
+            scheduler,
+            run_valid,
+            loss_values,
+            self.model_name
         )
-        logger.info(
-            "  Training epcoh took: {:}\n".format(format_time(time.time() - t0))
+        _ = evaluate_final_text(
+            tokenizer, MAX_LEN, model, self.device, le, final_name="test.json", name=self.model_name
         )
-
-    logger.info("\n")
-    logger.info("Training complete!\n")
-
-t = HinglishTrainer("bert")
+        full_output = evaluate_final_text(
+            tokenizer, MAX_LEN, model, self.device, le, final_name="final_test.json", name=self.model_name
+        )
+        l = pd.read_csv("test_labels_hinglish.txt")
+        precision_recall_fscore_support(
+            full_output["Sentiment"], l["Sentiment"][:-1], average="macro"
+        )
+        logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"][:-1])))
+        save_model(full_output, model, tokenizer, self.model_name)
