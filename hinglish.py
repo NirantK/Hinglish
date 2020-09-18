@@ -30,12 +30,12 @@ from hinglishutils import (
     add_padding,
     create_attention_masks,
     load_masks_and_inputs,
-    all_the_important_configs,
+    modify_transformer_config,
     make_dataloaders,
     load_lm_model,
     set_seed,
     train_model,
-    evaluate_final_text,
+    evaulate_and_save_prediction_results,
     save_model
 )
 from datetime import datetime
@@ -109,7 +109,7 @@ class HinglishTrainer:
             validation_masks,
             validation_labels,
         ) = load_masks_and_inputs(input_ids, labels, attention_masks)
-        self.config = all_the_important_configs(
+        self.config = modify_transformer_config(
             "bert",
             self.batch_size,
             self.attention_probs_dropout_prob,
@@ -161,7 +161,7 @@ class HinglishTrainer:
         test_json="final_test.json",
         test_labels="test_labels_hinglish.txt",
     ):
-        _ = evaluate_final_text(
+        _ = evaulate_and_save_prediction_results(
             self.tokenizer,
             self.MAX_LEN,
             self.model,
@@ -170,7 +170,7 @@ class HinglishTrainer:
             final_name=dev_json,
             name=self.model_name,
         )
-        full_output = evaluate_final_text(
+        full_output = evaulate_and_save_prediction_results(
             self.tokenizer,
             self.MAX_LEN,
             self.model,

@@ -128,7 +128,7 @@ def format_time(elapsed):
     return str(datetime.timedelta(seconds=elapsed_rounded))
 
 
-def all_the_important_configs(
+def modify_transformer_config(
     model,
     batch_size=8,
     attention_probs_dropout_prob=0.4,
@@ -172,7 +172,7 @@ def load_sentences_and_labels():
     return sentences, labels, le
 
 
-def evaluate_final_text(tokenizer, MAX_LEN, model, device, le, final_name, name):
+def evaulate_and_save_prediction_results(tokenizer, MAX_LEN, model, device, le, final_name, name):
     final_test_df = pd.read_json(final_name)
     sentences = final_test_df["clean_text"]
 
