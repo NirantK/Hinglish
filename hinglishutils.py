@@ -21,12 +21,17 @@ from transformers import (
     AdamW,
     BertConfig,
     BertForSequenceClassification,
+    DistilBertForSequenceClassification,
+    RobertaForSequenceClassification,
     BertTokenizer,
     DistilBertConfig,
     RobertaConfig,
     get_cosine_with_hard_restarts_schedule_with_warmup,
     get_linear_schedule_with_warmup,
 )
+import logging
+logger = logging.getLogger("hinglish")
+logger.setLevel(logging.DEBUG)
 
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fontsize=14):
@@ -362,3 +367,57 @@ def add_padding(tokenizer, input_ids, name):
 
     open(f"{name}.log", "a").write("\nDone.")
     return input_ids, MAX_LEN
+
+def tokenize_the_sentences(sentences, model_name, lm_model_dir):
+
+    if model_name == "bert":
+        logger.info("Loading BERT tokenizer...\n")
+        tokenizer = BertTokenizer.from_pretrained(lm_model_dir)
+    elif model_name =="distilbert":
+        logger.info("Loading DistilBERT tokenizer...\n")
+        tokenizer = DistilBertTokenizer.from_pretrained(lm_model_dir)
+    elif model_name =="roberta":
+        logger.info("Loading Roberta tokenizer...\n")
+        tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
+    tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
+    logger.info("Tokenize the first sentence:\n")
+    logger.info(str(tokenized_texts[0]))
+    logger.info("\n")
+    input_ids = []
+    for sent in sentences:
+
+        encoded_sent = tokenizer.encode(
+            sent,
+            add_special_tokens=True,
+        )
+
+        input_ids.append(encoded_sent)
+
+    return tokenizer, input_ids
+
+
+def save_model(full_output, model, tokenizer, model_name):
+    full_output.to_csv(f"{model_name}_preds.csv")
+
+    output_dir = f"./{model_name}/"
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    logger.info("Saving model to %s\n" % output_dir)
+
+    model_to_save = model.module if hasattr(model, "module") else model
+    model_to_save.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
+
+
+def load_lm_model(config, model_name, lm_model_dir):
+    if model_name =="bert":
+        model = BertForSequenceClassification.from_pretrained(lm_model_dir, config=config)
+    elif model_name =="distilbert":
+        model = DistilBertForSequenceClassification.from_pretrained(lm_model_dir, config=config)
+    if model_name =="roberta":
+        model = RobertaForSequenceClassification.from_pretrained(lm_model_dir, config=config)
+    model.cuda()
+    params = list(model.named_parameters())
+    return model
