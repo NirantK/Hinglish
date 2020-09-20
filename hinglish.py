@@ -22,20 +22,21 @@ from transformers import (
     get_cosine_with_hard_restarts_schedule_with_warmup,
     get_linear_schedule_with_warmup,
 )
+
 from hinglishutils import (
-    check_for_gpu,
-    load_sentences_and_labels,
-    tokenize_the_sentences,
     add_padding,
+    check_for_gpu,
     create_attention_masks,
-    load_masks_and_inputs,
-    modify_transformer_config,
-    make_dataloaders,
-    load_lm_model,
-    set_seed,
-    train_model,
     evaulate_and_save_prediction_results,
-    save_model
+    load_lm_model,
+    load_masks_and_inputs,
+    load_sentences_and_labels,
+    make_dataloaders,
+    modify_transformer_config,
+    save_model,
+    set_seed,
+    tokenize_the_sentences,
+    train_model,
 )
 from datetime import datetime
 
@@ -63,6 +64,7 @@ class HinglishTrainer:
         self.adam_epsilon = adam_epsilon
         self.hidden_dropout_prob = hidden_dropout_prob
         self.epochs = epochs
+        self.lm_model_dir = lm_model_dir
 
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
@@ -81,7 +83,6 @@ class HinglishTrainer:
         logger.info(f"Epochs - {self.epochs}")
         logger.info("--------------------------------")
         self.device = check_for_gpu(self.model_name)
-        self.lm_model_dir = lm_model_dir
         if not lm_model_dir:
             if self.model_name == "bert":
                 self.lm_model_dir = "model_save"
@@ -114,6 +115,7 @@ class HinglishTrainer:
             self.learning_rate,
             self.adam_epsilon,
             self.hidden_dropout_prob,
+            self.lm_model_dir,
         )
         self.train_dataloader, self.validation_dataloader = make_dataloaders(
             train_inputs,
@@ -150,7 +152,7 @@ class HinglishTrainer:
             scheduler,
             loss_values,
             self.model_name,
-            self.validation_dataloader
+            self.validation_dataloader,
         )
 
     def evaluate(

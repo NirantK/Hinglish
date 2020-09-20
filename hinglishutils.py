@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import random
 import re
@@ -20,17 +21,17 @@ from transformers import (
     AdamW,
     BertConfig,
     BertForSequenceClassification,
-    DistilBertForSequenceClassification,
-    RobertaForSequenceClassification,
     BertTokenizer,
-    DistilBertTokenizer,
-    RobertaTokenizer,
     DistilBertConfig,
+    DistilBertForSequenceClassification,
+    DistilBertTokenizer,
     RobertaConfig,
+    RobertaForSequenceClassification,
+    RobertaTokenizer,
     get_cosine_with_hard_restarts_schedule_with_warmup,
     get_linear_schedule_with_warmup,
 )
-import logging
+
 logger = logging.getLogger("hinglish")
 logger.setLevel(logging.DEBUG)
 
@@ -77,6 +78,13 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fonts
 
 
 def get_files_from_gdrive(url: str, fname: str) -> None:
+    """Converts google share link to something that can be
+    downloaded using gdown
+
+    Args:
+        url (str): google drive url
+        fname (str): output filename
+    """
     file_id = url.split("/")[5]
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, fname, quiet=False)
@@ -104,6 +112,7 @@ def clean(df, col):
 
 
 def flat_accuracy(preds, labels):
+    """Accuracy calulations for tensors"""
     pred_flat = np.argmax(preds, axis=1).flatten()
     labels_flat = labels.flatten()
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
@@ -134,13 +143,14 @@ def modify_transformer_config(
     learning_rate=5e-7,
     adam_epsilon=1e-8,
     hidden_dropout_prob=0.3,
+    lm_model_dir=None,
 ):
     if model == "bert":
-        config = BertConfig.from_json_file("model_save/config.json")
+        config = BertConfig.from_json_file(f"{lm_model_dir}/config.json")
     elif model == "distilbert":
-        config = DistilBertConfig.from_json_file("distilBert6/config.json")
+        config = DistilBertConfig.from_json_file(f"{lm_model_dir}/config.json")
     elif model == "roberta":
-        config = RobertaConfig.from_json_file("roberta3/config.json")
+        config = RobertaConfig.from_json_file(f"{lm_model_dir}/config.json")
     config.attention_probs_dropout_prob = attention_probs_dropout_prob
     config.do_sample = True
     config.num_beams = 500
@@ -151,23 +161,34 @@ def modify_transformer_config(
 
 
 def check_for_gpu(name):
-    return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def load_sentences_and_labels():
-    train_df = pd.read_json("train.json")
-    test_df = pd.read_json("test.json")
-    sentences = train_df["clean_text"]
-    labels = train_df["sentiment"]
+def load_sentences_and_labels(
+    train_json="train.json", text_col="clean_text", label_col="sentiment"
+):
+    train_df = pd.read_json(train_json)
+    sentences = train_df[text_col]
+    labels = train_df[label_col]
     le = preprocessing.LabelEncoder()
     le.fit(labels)
     labels = le.transform(labels)
     return sentences, labels, le
 
 
-def evaulate_and_save_prediction_results(tokenizer, MAX_LEN, model, device, le, final_name, name):
+def evaulate_and_save_prediction_results(
+    tokenizer,
+    MAX_LEN,
+    model,
+    device,
+    le,
+    final_name,
+    name,
+    text_col="clean_text",
+    label_col="sentiment",
+):
     final_test_df = pd.read_json(final_name)
-    sentences = final_test_df["clean_text"]
+    sentences = final_test_df[text_col]
 
     prediction_inputs, prediction_masks = prep_input(sentences, tokenizer, MAX_LEN)
 
@@ -179,15 +200,13 @@ def evaulate_and_save_prediction_results(tokenizer, MAX_LEN, model, device, le, 
         prediction_data, sampler=prediction_sampler, batch_size=batch_size
     )
 
-    open(f"{name}.log", "a").write(
+    logger.info(
         "Predicting labels for {:,} valid sentences...\n".format(len(prediction_inputs))
     )
 
     model.eval()
 
     predictions = get_preds_from_model(prediction_dataloader, device, model)
-
-    open(f"{name}.log", "a").write("    DONE.\n")
 
     flat_predictions = [item for sublist in predictions for item in sublist]
     flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
@@ -199,7 +218,7 @@ def evaulate_and_save_prediction_results(tokenizer, MAX_LEN, model, device, le, 
         {
             "Uid": list(final_test_df["uid"]),
             "Sentiment": output,
-            "clean_text": list(final_test_df["clean_text"]),
+            text_col: list(final_test_df[text_col]),
         }
     )
     output_df.to_csv(f"{name}-{final_name[:-5]}-output-df.csv")
@@ -260,9 +279,7 @@ def prep_input(sentences, tokenizer, MAX_LEN):
     return prediction_inputs, prediction_masks
 
 
-def set_seed():
-    seed_val = 42
-
+def set_seed(seed_val=42):
     random.seed(seed_val)
     np.random.seed(seed_val)
     torch.manual_seed(seed_val)
@@ -339,11 +356,9 @@ def add_padding(tokenizer, input_ids, name):
 
     MAX_LEN = 300
 
-    open(f"{name}.log", "a").write(
-        "\nPadding/truncating all sentences to %d values...\n" % MAX_LEN
-    )
+    logger.info("\nPadding/truncating all sentences to %d values...\n" % MAX_LEN)
 
-    open(f"{name}.log", "a").write(
+    logger.info(
         '\nPadding token: "{:}", ID: {:}\n'.format(
             tokenizer.pad_token, tokenizer.pad_token_id
         )
@@ -358,24 +373,24 @@ def add_padding(tokenizer, input_ids, name):
         padding="post",
     )
 
-    open(f"{name}.log", "a").write("\nDone.")
+    logger.info("\nDone.")
     return input_ids, MAX_LEN
+
 
 def tokenize_the_sentences(sentences, model_name, lm_model_dir):
 
     if model_name == "bert":
         logger.info("Loading BERT tokenizer...\n")
         tokenizer = BertTokenizer.from_pretrained(lm_model_dir)
-    elif model_name =="distilbert":
+    elif model_name == "distilbert":
         logger.info("Loading DistilBERT tokenizer...\n")
         tokenizer = DistilBertTokenizer.from_pretrained(lm_model_dir)
-    elif model_name =="roberta":
+    elif model_name == "roberta":
         logger.info("Loading Roberta tokenizer...\n")
         tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
     tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
     logger.info("Tokenize the first sentence:\n")
     logger.info(str(tokenized_texts[0]))
-    logger.info("\n")
     input_ids = []
     for sent in sentences:
 
@@ -405,15 +420,22 @@ def save_model(full_output, model, tokenizer, model_name):
 
 
 def load_lm_model(config, model_name, lm_model_dir):
-    if model_name =="bert":
-        model = BertForSequenceClassification.from_pretrained(lm_model_dir, config=config)
-    elif model_name =="distilbert":
-        model = DistilBertForSequenceClassification.from_pretrained(lm_model_dir, config=config)
-    if model_name =="roberta":
-        model = RobertaForSequenceClassification.from_pretrained(lm_model_dir, config=config)
+    if model_name == "bert":
+        model = BertForSequenceClassification.from_pretrained(
+            lm_model_dir, config=config
+        )
+    elif model_name == "distilbert":
+        model = DistilBertForSequenceClassification.from_pretrained(
+            lm_model_dir, config=config
+        )
+    if model_name == "roberta":
+        model = RobertaForSequenceClassification.from_pretrained(
+            lm_model_dir, config=config
+        )
     model.cuda()
     params = list(model.named_parameters())
     return model
+
 
 def train_model(
     epochs,
@@ -424,7 +446,7 @@ def train_model(
     scheduler,
     loss_values,
     model_name,
-    validation_dataloader
+    validation_dataloader,
 ):
     for epoch_i in range(0, epochs):
 
@@ -457,14 +479,14 @@ def train_model(
             b_labels = batch[2].to(device)
 
             model.zero_grad()
-            if model_name =="bert":
+            if model_name == "bert":
                 outputs = model(
                     b_input_ids,
                     token_type_ids=None,
                     attention_mask=b_input_mask,
                     labels=b_labels,
                 )
-            else :
+            else:
                 outputs = model(
                     b_input_ids,
                     attention_mask=b_input_mask,
@@ -491,15 +513,14 @@ def train_model(
         loss_values.append(avg_train_loss)
 
         logger.info("")
-        logger.info(
-            "  Average training loss: {0:.2f}\n".format(avg_train_loss)
-        )
+        logger.info("  Average training loss: {0:.2f}\n".format(avg_train_loss))
         logger.info(
             "  Training epcoh took: {:}\n".format(format_time(time.time() - t0))
         )
 
     logger.info("\n")
     logger.info("Training complete!\n")
+
 
 def run_valid(model, model_name, validation_dataloader, device):
     logger.info("Running Validation...\n")
@@ -518,20 +539,33 @@ def run_valid(model, model_name, validation_dataloader, device):
         eval_r,
         eval_f1,
     ) = evaluate_data_for_one_epochs(
-        eval_accuracy, eval_p, eval_r, eval_f1, nb_eval_steps, model, model_name, validation_dataloader, device
+        eval_accuracy,
+        eval_p,
+        eval_r,
+        eval_f1,
+        nb_eval_steps,
+        model,
+        model_name,
+        validation_dataloader,
+        device,
     )
-    logger.info(
-        "  Accuracy: {0:.2f}\n".format(eval_accuracy / nb_eval_steps)
-    )
+    logger.info("  Accuracy: {0:.2f}\n".format(eval_accuracy / nb_eval_steps))
     logger.info(
         f"  Precision, Recall F1: {eval_p/nb_eval_steps}, {eval_r/nb_eval_steps}, {eval_f1/nb_eval_steps}\n"
     )
-    logger.info(
-        "  Validation took: {:}\n".format(format_time(time.time() - t0))
-    )
+    logger.info("  Validation took: {:}\n".format(format_time(time.time() - t0)))
+
 
 def evaluate_data_for_one_epochs(
-    eval_accuracy, eval_p, eval_r, eval_f1, nb_eval_steps, model, model_name, validation_dataloader, device
+    eval_accuracy,
+    eval_p,
+    eval_r,
+    eval_f1,
+    nb_eval_steps,
+    model,
+    model_name,
+    validation_dataloader,
+    device,
 ):
     for batch in validation_dataloader:
 
@@ -540,14 +574,12 @@ def evaluate_data_for_one_epochs(
         b_input_ids, b_input_mask, b_labels = batch
 
         with torch.no_grad():
-            if model_name =="bert":
+            if model_name == "bert":
                 outputs = model(
                     b_input_ids, token_type_ids=None, attention_mask=b_input_mask
                 )
-            else : 
-                outputs = model(
-                    b_input_ids, attention_mask=b_input_mask
-                )
+            else:
+                outputs = model(b_input_ids, attention_mask=b_input_mask)
         logits = outputs[0]
         logits = logits.detach().cpu().numpy()
         label_ids = b_labels.to("cpu").numpy()
