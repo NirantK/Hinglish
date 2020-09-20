@@ -6,6 +6,7 @@ import time
 import numpy as np
 import pandas as pd
 import torch
+from fastcore.utils import store_attr
 from IPython.display import clear_output
 from keras.preprocessing.sequence import pad_sequences
 from sklearn import preprocessing
@@ -38,6 +39,7 @@ from hinglishutils import (
     tokenize_the_sentences,
     train_model,
 )
+
 from datetime import datetime
 
 logger = logging.getLogger("hinglish")
@@ -56,15 +58,7 @@ class HinglishTrainer:
         epochs: int = 3,
         lm_model_dir: str = None,
     ):
-        self.model_name = model_name
-        self.model_name = model_name
-        self.batch_size = batch_size
-        self.attention_probs_dropout_prob = attention_probs_dropout_prob
-        self.learning_rate = learning_rate
-        self.adam_epsilon = adam_epsilon
-        self.hidden_dropout_prob = hidden_dropout_prob
-        self.epochs = epochs
-        self.lm_model_dir = lm_model_dir
+        store_attr()
 
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
