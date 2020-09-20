@@ -175,7 +175,7 @@ class HinglishTrainer:
         )
         l = pd.read_csv(test_labels)
         precision_recall_fscore_support(
-            full_output["Sentiment"], l["Sentiment"][:-1], average="macro"
+            full_output["Sentiment"], l["Sentiment"], average="macro"
         )
-        logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"][:-1])))
+        logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
         save_model(full_output, self.model, self.tokenizer, self.model_name)
