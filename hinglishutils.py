@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+import tarfile
 from IPython.display import clear_output
 from keras.preprocessing.sequence import pad_sequences
 from sklearn import preprocessing
@@ -88,7 +89,9 @@ def get_files_from_gdrive(url: str, fname: str) -> None:
     file_id = url.split("/")[5]
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, fname, quiet=False)
-
+    if fname[-3:] =="tar":
+        tf = tarfile.open(fname)
+        tf.extractall()
 
 def clean(df, col):
     """Cleaning Twiitter data
