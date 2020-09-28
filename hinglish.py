@@ -148,6 +148,7 @@ class HinglishTrainer:
             self.model_name,
             self.validation_dataloader,
         )
+        self.evaluate()
 
     def evaluate(
         self,
@@ -155,7 +156,6 @@ class HinglishTrainer:
         test_json="final_test.json",
         test_labels="test_labels_hinglish.txt",
     ):
-        self.setup()
         _ = evaulate_and_save_prediction_results(
             self.tokenizer,
             self.MAX_LEN,
