@@ -260,12 +260,15 @@ def prep_input(sentences, tokenizer, MAX_LEN):
     input_ids = []
 
     for sent in sentences:
-        encoded_sent = tokenizer.encode(
-            sent,
-            add_special_tokens=True,
-        )
+        if sent : 
+            encoded_sent = tokenizer.encode(
+                sent,
+                add_special_tokens=True,
+            )
 
-        input_ids.append(encoded_sent)
+            input_ids.append(encoded_sent)
+        if not sent : 
+            logger.info(f"NAN sent detected {sent}")
 
     input_ids = pad_sequences(
         input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post"

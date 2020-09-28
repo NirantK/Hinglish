@@ -148,7 +148,6 @@ class HinglishTrainer:
             self.model_name,
             self.validation_dataloader,
         )
-        self.evaluate()
 
     def evaluate(
         self,
