@@ -121,7 +121,6 @@ class HinglishTrainer:
         )
 
     def train(self):
-        self.setup()
         self.model = load_lm_model(self.config, self.model_name, self.lm_model_dir)
         optimizer = AdamW(
             self.model.parameters(),
