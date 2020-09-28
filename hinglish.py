@@ -57,7 +57,7 @@ class HinglishTrainer:
         hidden_dropout_prob: float = 0.3,
         epochs: int = 3,
         lm_model_dir: str = None,
-        drivepath=None,
+        drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
 
@@ -192,7 +192,8 @@ class HinglishTrainer:
         save_model(full_output, self.model, self.tokenizer, self.model_name)
         self.copy_and_delete(self.drivepath)
 
-    def copy_and_delete(self, drivepath=Path("../drive/My\ Drive/HinglishNLP/repro")):
+    def copy_and_delete(self, drivepath):
+        logger.info(drivepath)
         os.system(
             f"!tar czf {self.model_name}_{self.timestamp}.tar.gz ./{self.model_name}/*"
         )
