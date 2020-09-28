@@ -155,20 +155,20 @@ class HinglishTrainer:
         test_json="final_test.json",
         test_labels="test_labels_hinglish.txt",
     ):
-        output = evaulate_and_save_prediction_results(
-            self.tokenizer,
-            self.MAX_LEN,
-            self.model,
-            self.device,
-            self.le,
-            final_name=dev_json,
-            name=self.model_name,
-        )
-        logger.info("Printing Eval Metrics")
-        logger.info(precision_recall_fscore_support(
-            output["Sentiment"], output["sentiment"], average="macro"
-        ))
-        logger.info(str(accuracy_score(output["Sentiment"], output["sentiment"])))
+        # output = evaulate_and_save_prediction_results(
+        #     self.tokenizer,
+        #     self.MAX_LEN,
+        #     self.model,
+        #     self.device,
+        #     self.le,
+        #     final_name=dev_json,
+        #     name=self.model_name,
+        # )
+        # logger.info("Printing Eval Metrics")
+        # logger.info(precision_recall_fscore_support(
+        #     output["Sentiment"], output["sentiment"], average="macro"
+        # ))
+        # logger.info(str(accuracy_score(output["Sentiment"], output["sentiment"])))
 
         full_output = evaulate_and_save_prediction_results(
             self.tokenizer,
