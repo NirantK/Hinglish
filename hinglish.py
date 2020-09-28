@@ -190,27 +190,3 @@ class HinglishTrainer:
         )
         logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
         save_model(full_output, self.model, self.tokenizer, self.model_name)
-        self.copy_and_delete(self.drivepath)
-
-    def copy_and_delete(self, drivepath):
-        logger.info(drivepath)
-        os.system(
-            f"!tar czf {self.model_name}_{self.timestamp}.tar.gz ./{self.model_name}/*"
-        )
-        os.system(
-            f"!tar czf {self.model_name}_{self.timestamp}data.tar.gz {self.model_name}-final_test* {self.model_name}-test* {self.model_name}_{self.timestamp}.log {self.model_name}_preds.csv"
-        )
-        os.system(f"!mkdir {str(drivepath)}/{self.model_name}_{self.timestamp}")
-        os.system(
-            f"!cp -r {self.model_name}_{self.timestamp}.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}"
-        )
-        os.system(
-            f"!cp -r {self.model_name}_{self.timestamp}data.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}"
-        )
-        os.system(
-            f"!cp -r {self.model_name}_{self.timestamp}.log {str(drivepath)}/{self.model_name}_{self.timestamp}"
-        )
-        os.system(f"!rm -r ./{self.model_name}/*")
-        os.system(f"!rm -r ./{self.model_name}")
-        os.system(f"!rm -r {self.model_name}-final_test*")
-        os.system(f"!rm -r {self.model_name}_preds.csv")
