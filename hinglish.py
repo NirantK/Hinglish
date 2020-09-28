@@ -65,6 +65,7 @@ class HinglishTrainer:
         fh.setLevel(logging.INFO)
         logger.addHandler(fh)
         logger.info(f"Setup self.model training for {model_name}")
+        logger.info(f"log file name -- {self.model_name}_{self.timestamp}.log")
         logger.info(f"---- Parameters for this self.model ----")
         logger.info(f"Model Name - {self.model_name}")
         logger.info(f"Batch Size - {self.batch_size}")
