@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -39,7 +40,6 @@ from hinglishutils import (
     tokenize_the_sentences,
     train_model,
 )
-
 from datetime import datetime
 
 logger = logging.getLogger("hinglish")
@@ -57,6 +57,7 @@ class HinglishTrainer:
         hidden_dropout_prob: float = 0.3,
         epochs: int = 3,
         lm_model_dir: str = None,
+        drivepath=None,
     ):
         store_attr()
 
@@ -182,20 +183,32 @@ class HinglishTrainer:
         )
         logger.info("Printing Test Metrics")
         l = pd.read_csv(test_labels)
-        logger.info(precision_recall_fscore_support(
-            full_output["Sentiment"], l["Sentiment"], average="macro"
-        ))
+        logger.info(
+            precision_recall_fscore_support(
+                full_output["Sentiment"], l["Sentiment"], average="macro"
+            )
+        )
         logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
         save_model(full_output, self.model, self.tokenizer, self.model_name)
-        self.copy_and_delete()
-    
-    def copy_and_delete(self, drivepath = Path("../drive/My\ Drive/HinglishNLP/repro")):
-        os.system(f"!tar czf {self.model_name}_{self.timestamp}.tar.gz ./{self.model_name}/*")
-        os.system(f"!tar czf {self.model_name}_{self.timestamp}data.tar.gz {self.model_name}-final_test* {self.model_name}-test* {self.model_name}_{self.timestamp}.log {self.model_name}_preds.csv")
+        self.copy_and_delete(self.drivepath)
+
+    def copy_and_delete(self, drivepath=Path("../drive/My\ Drive/HinglishNLP/repro")):
+        os.system(
+            f"!tar czf {self.model_name}_{self.timestamp}.tar.gz ./{self.model_name}/*"
+        )
+        os.system(
+            f"!tar czf {self.model_name}_{self.timestamp}data.tar.gz {self.model_name}-final_test* {self.model_name}-test* {self.model_name}_{self.timestamp}.log {self.model_name}_preds.csv"
+        )
         os.system(f"!mkdir {str(drivepath)}/{self.model_name}_{self.timestamp}")
-        os.system(f"!cp -r {self.model_name}_{self.timestamp}.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}")
-        os.system(f"!cp -r {self.model_name}_{self.timestamp}data.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}")
-        os.system(f"!cp -r {self.model_name}_{self.timestamp}.log {str(drivepath)}/{self.model_name}_{self.timestamp}")
+        os.system(
+            f"!cp -r {self.model_name}_{self.timestamp}.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}"
+        )
+        os.system(
+            f"!cp -r {self.model_name}_{self.timestamp}data.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}"
+        )
+        os.system(
+            f"!cp -r {self.model_name}_{self.timestamp}.log {str(drivepath)}/{self.model_name}_{self.timestamp}"
+        )
         os.system(f"!rm -r ./{self.model_name}/*")
         os.system(f"!rm -r ./{self.model_name}")
         os.system(f"!rm -r {self.model_name}-final_test*")
