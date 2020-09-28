@@ -156,15 +156,15 @@ class HinglishTrainer:
         test_json="final_test.json",
         test_labels="test_labels_hinglish.txt",
     ):
-        # output = evaulate_and_save_prediction_results(
-        #     self.tokenizer,
-        #     self.MAX_LEN,
-        #     self.model,
-        #     self.device,
-        #     self.le,
-        #     final_name=dev_json,
-        #     name=self.model_name,
-        # )
+        output = evaulate_and_save_prediction_results(
+            self.tokenizer,
+            self.MAX_LEN,
+            self.model,
+            self.device,
+            self.le,
+            final_name=dev_json,
+            name=self.model_name,
+        )
         # logger.info("Printing Eval Metrics")
         # logger.info(precision_recall_fscore_support(
         #     output["Sentiment"], output["sentiment"], average="macro"
@@ -187,3 +187,16 @@ class HinglishTrainer:
         ))
         logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
         save_model(full_output, self.model, self.tokenizer, self.model_name)
+        self.copy_and_delete()
+    
+    def copy_and_delete(self, drivepath = Path("../drive/My\ Drive/HinglishNLP/repro")):
+        os.system(f"!tar czf {self.model_name}_{self.timestamp}.tar.gz ./{self.model_name}/*")
+        os.system(f"!tar czf {self.model_name}_{self.timestamp}data.tar.gz {self.model_name}-final_test* {self.model_name}-test* {self.model_name}_{self.timestamp}.log {self.model_name}_preds.csv")
+        os.system(f"!mkdir {str(drivepath)}/{self.model_name}_{self.timestamp}")
+        os.system(f"!cp -r {self.model_name}_{self.timestamp}.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}")
+        os.system(f"!cp -r {self.model_name}_{self.timestamp}data.tar.gz {str(drivepath)}/{self.model_name}_{self.timestamp}")
+        os.system(f"!cp -r {self.model_name}_{self.timestamp}.log {str(drivepath)}/{self.model_name}_{self.timestamp}")
+        os.system(f"!rm -r ./{self.model_name}/*")
+        os.system(f"!rm -r ./{self.model_name}")
+        os.system(f"!rm -r {self.model_name}-final_test*")
+        os.system(f"!rm -r {self.model_name}_preds.csv")
