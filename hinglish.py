@@ -85,6 +85,7 @@ class HinglishTrainer:
             elif self.model_name == "roberta":
                 self.lm_model_dir = "roberta3"
 
+    def setup(self):
         sentences, labels, self.le = load_sentences_and_labels()
         self.tokenizer, input_ids = tokenize_the_sentences(
             sentences, self.model_name, self.lm_model_dir
@@ -121,6 +122,7 @@ class HinglishTrainer:
         )
 
     def train(self):
+        self.setup()
         self.model = load_lm_model(self.config, self.model_name, self.lm_model_dir)
         optimizer = AdamW(
             self.model.parameters(),
@@ -153,6 +155,7 @@ class HinglishTrainer:
         test_json="final_test.json",
         test_labels="test_labels_hinglish.txt",
     ):
+        self.setup()
         _ = evaulate_and_save_prediction_results(
             self.tokenizer,
             self.MAX_LEN,
