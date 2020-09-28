@@ -521,7 +521,7 @@ def train_model(
         logger.info("")
         logger.info("  Average training loss: {0:.2f}\n".format(avg_train_loss))
         logger.info(
-            "  Training epcoh took: {:}\n".format(format_time(time.time() - t0))
+            "  Training epoch took: {:}\n".format(format_time(time.time() - t0))
         )
 
     logger.info("\n")

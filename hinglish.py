@@ -155,7 +155,7 @@ class HinglishTrainer:
         test_json="final_test.json",
         test_labels="test_labels_hinglish.txt",
     ):
-        _ = evaulate_and_save_prediction_results(
+        output = evaulate_and_save_prediction_results(
             self.tokenizer,
             self.MAX_LEN,
             self.model,
@@ -164,6 +164,12 @@ class HinglishTrainer:
             final_name=dev_json,
             name=self.model_name,
         )
+        logger.info("Printing Eval Metrics")
+        logger.info(precision_recall_fscore_support(
+            output["Sentiment"], output["Sentiment"], average="macro"
+        ))
+        logger.info(str(accuracy_score(output["Sentiment"], output["Sentiment"])))
+
         full_output = evaulate_and_save_prediction_results(
             self.tokenizer,
             self.MAX_LEN,
@@ -173,9 +179,10 @@ class HinglishTrainer:
             final_name=test_json,
             name=self.model_name,
         )
+        logger.info("Printing Test Metrics")
         l = pd.read_csv(test_labels)
-        precision_recall_fscore_support(
+        logger.info(precision_recall_fscore_support(
             full_output["Sentiment"], l["Sentiment"], average="macro"
-        )
+        ))
         logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
         save_model(full_output, self.model, self.tokenizer, self.model_name)
