@@ -166,9 +166,9 @@ class HinglishTrainer:
         )
         logger.info("Printing Eval Metrics")
         logger.info(precision_recall_fscore_support(
-            output["Sentiment"], output["Sentiment"], average="macro"
+            output["Sentiment"], output["sentiment"], average="macro"
         ))
-        logger.info(str(accuracy_score(output["Sentiment"], output["Sentiment"])))
+        logger.info(str(accuracy_score(output["Sentiment"], output["sentiment"])))
 
         full_output = evaulate_and_save_prediction_results(
             self.tokenizer,
