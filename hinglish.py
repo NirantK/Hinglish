@@ -85,7 +85,6 @@ class HinglishTrainer:
             elif self.model_name == "roberta":
                 self.lm_model_dir = "roberta3"
 
-    def setup(self):
         sentences, labels, self.le = load_sentences_and_labels()
         self.tokenizer, input_ids = tokenize_the_sentences(
             sentences, self.model_name, self.lm_model_dir
