@@ -533,6 +533,13 @@ def run_valid(model, model_name, validation_dataloader, device):
         device,
     )
     wandb.log({"Valid Accuracy": eval_accuracy / nb_eval_steps})
+    print(
+        {
+            "Valid Precision": (eval_p / nb_eval_steps),
+            "Valid Recall": (eval_r / nb_eval_steps),
+            "Valid F1": (eval_f1 / nb_eval_steps)
+        }
+    )
     wandb.log(
         {
             "Valid Precision": (eval_p / nb_eval_steps),
