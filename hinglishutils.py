@@ -222,6 +222,7 @@ def evaulate_and_save_prediction_results(
         }
     )
     output_df.to_csv(f"{name}-{final_name[:-5]}-output-df.csv")
+    wandb.save(f"{name}-{final_name[:-5]}-output-df.csv")
     proba = [item for sublist in predictions for item in sublist]
     preds = np.argmax(proba, axis=1).flatten()
     full_output = output_df
@@ -229,6 +230,7 @@ def evaulate_and_save_prediction_results(
     full_output["proba_neutral"] = pd.DataFrame(proba)[1]
     full_output["proba_positive"] = pd.DataFrame(proba)[2]
     full_output.to_csv(f"{name}-{final_name[:-5]}-full-output.csv")
+    wandb.save(f"{name}-{final_name[:-5]}-full-output.csv")
     return full_output
 
 
@@ -397,6 +399,7 @@ def tokenize_the_sentences(sentences, model_name, lm_model_dir):
 
 def save_model(full_output, model, tokenizer, model_name):
     full_output.to_csv(f"{model_name}_preds.csv")
+    wandb.save(f"{model_name}_preds.csv")
 
     output_dir = f"./{model_name}/"
 
@@ -406,6 +409,7 @@ def save_model(full_output, model, tokenizer, model_name):
     model_to_save = model.module if hasattr(model, "module") else model
     model_to_save.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
+    wandb.save(f"{output_dir}/*")
 
 
 def load_lm_model(config, model_name, lm_model_dir):
