@@ -55,9 +55,13 @@ class HinglishTrainer:
         hidden_dropout_prob: float = 0.3,
         epochs: int = 3,
         lm_model_dir: str = None,
+        wname=None,
         drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
+        self.timestamp = str(datetime.timestamp(datetime.now()).strftime("%d.%m.%y"))
+        if not self.wname:
+            self.wname = self.model_name
         wandb.init(
             project="hinglish",
             config={
@@ -69,10 +73,8 @@ class HinglishTrainer:
                 "hidden_dropout_prob": self.hidden_dropout_prob,
                 "epochs": self.epochs,
             },
+            name=f"{self.wname} {self.timestamp}",
         )
-        self.timestamp = str(datetime.timestamp(datetime.now()))
-        fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
-        fh.setLevel(logging.INFO)
         print({"Model Info": f"Setup self.model training for {model_name}"})
         print(
             {"Model Info": f"log file name -- {self.model_name}_{self.timestamp}.log"}
