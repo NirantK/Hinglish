@@ -33,9 +33,6 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
-logger = logging.getLogger("hinglish")
-logger.setLevel(logging.DEBUG)
-
 import wandb
 wandb.init(project="hinglish")
 

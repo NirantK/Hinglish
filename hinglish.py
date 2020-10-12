@@ -43,9 +43,6 @@ from hinglishutils import (
 from datetime import datetime
 import wandb
 
-logger = logging.getLogger("hinglish")
-logger.setLevel(logging.DEBUG)
-
 wandb.init(project="hinglish")
 
 class HinglishTrainer:
@@ -66,7 +63,6 @@ class HinglishTrainer:
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
         fh.setLevel(logging.INFO)
-        logger.addHandler(fh)
         wandb.log(f"Setup self.model training for {model_name}")
         wandb.log(f"log file name -- {self.model_name}_{self.timestamp}.log")
         wandb.log(f"---- Parameters for this self.model ----")
