@@ -496,8 +496,6 @@ def train_model(
             run_valid(model, model_name, validation_dataloader, device)
 
         elapsed = format_time(time.time() - t0)
-        run_valid(model, model_name, validation_dataloader, device)
-
         avg_train_loss = total_loss / len(train_dataloader)
 
         loss_values.append(avg_train_loss)
