@@ -59,7 +59,7 @@ class HinglishTrainer:
         drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
-        self.timestamp = str(datetime.timestamp(datetime.now()).strftime("%d.%m.%y"))
+        self.timestamp = str(datetime.now().strftime("%d.%m.%y"))
         if not self.wname:
             self.wname = self.model_name
         wandb.init(
