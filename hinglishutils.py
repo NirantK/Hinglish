@@ -449,11 +449,11 @@ def train_model(
             clear_output(wait=True)
 
             if step % 40 == 0 and not step == 0:
-                wandb.log({"Epoch": epoch_i + 1, "Total Epochs": epochs})
+                print({"Epoch": epoch_i + 1, "Total Epochs": epochs})
 
                 elapsed = format_time(time.time() - t0)
 
-                wandb.log(
+                print(
                     {
                         "Batch": step,
                         "Total Batches": len(train_dataloader),
@@ -500,7 +500,6 @@ def train_model(
         loss_values.append(avg_train_loss)
 
         wandb.log({"Average training loss": avg_train_loss})
-        wandb.log({"Training epoch time": format_time(time.time() - t0)})
 
     print("Training complete!\n")
 
@@ -540,7 +539,6 @@ def run_valid(model, model_name, validation_dataloader, device):
             "F1": {eval_f1 / nb_eval_steps},
         }
     )
-    wandb.log({"Validation time": format_time(time.time() - t0)})
 
 
 def evaluate_data_for_one_epochs(

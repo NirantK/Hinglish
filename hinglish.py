@@ -64,25 +64,25 @@ class HinglishTrainer:
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
         fh.setLevel(logging.INFO)
-        wandb.log({"Model Info": f"Setup self.model training for {model_name}"})
-        wandb.log(
+        print({"Model Info": f"Setup self.model training for {model_name}"})
+        print(
             {"Model Info": f"log file name -- {self.model_name}_{self.timestamp}.log"}
         )
-        wandb.log({"Model Info": f"---- Parameters for this self.model ----"})
-        wandb.log({"Model Info": f"Model Name - {self.model_name}"})
-        wandb.log({"Model Info": f"Batch Size - {self.batch_size}"})
-        wandb.log(
+        print({"Model Info": f"---- Parameters for this self.model ----"})
+        print({"Model Info": f"Model Name - {self.model_name}"})
+        print({"Model Info": f"Batch Size - {self.batch_size}"})
+        print(
             {
                 "Model Info": f"Attention_probs_dropout_prob - {self.attention_probs_dropout_prob}"
             }
         )
-        wandb.log({"Model Info": f"Learning Rate - {self.learning_rate}"})
-        wandb.log({"Model Info": f"Adam Rpsilon - {self.adam_epsilon}"})
-        wandb.log(
+        print({"Model Info": f"Learning Rate - {self.learning_rate}"})
+        print({"Model Info": f"Adam Rpsilon - {self.adam_epsilon}"})
+        print(
             {"Model Info": f"Hidden Dropout Probability - {self.hidden_dropout_prob}"}
         )
-        wandb.log({"Model Info": f"Epochs - {self.epochs}"})
-        wandb.log({"Model Info": "--------------------------------"})
+        print({"Model Info": f"Epochs - {self.epochs}"})
+        print({"Model Info": "--------------------------------"})
         self.device = check_for_gpu(self.model_name)
         if not lm_model_dir:
             if self.model_name == "bert":
