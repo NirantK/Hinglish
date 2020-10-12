@@ -43,8 +43,6 @@ from hinglishutils import (
 from datetime import datetime
 import wandb
 
-wandb.init(project="hinglish")
-
 
 class HinglishTrainer:
     def __init__(
@@ -60,7 +58,7 @@ class HinglishTrainer:
         drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
-
+        wandb.init(project="hinglish")
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
         fh.setLevel(logging.INFO)

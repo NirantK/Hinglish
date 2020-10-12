@@ -35,8 +35,6 @@ from transformers import (
 
 import wandb
 
-wandb.init(project="hinglish")
-
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fontsize=14):
     """Prints a confusion matrix, as returned by sklearn.metrics.confusion_matrix, as a heatmap.
@@ -495,6 +493,7 @@ def train_model(
             optimizer.step()
 
             scheduler.step()
+            run_valid(model, model_name, validation_dataloader, device)
 
         elapsed = format_time(time.time() - t0)
         run_valid(model, model_name, validation_dataloader, device)
@@ -503,7 +502,7 @@ def train_model(
 
         loss_values.append(avg_train_loss)
 
-        wandb.log({"Average training loss": avg_train_loss})
+        wandb.log({"Average Epoch training loss": avg_train_loss})
 
     print("Training complete!\n")
 
