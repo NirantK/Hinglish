@@ -36,6 +36,8 @@ from transformers import (
 logger = logging.getLogger("hinglish")
 logger.setLevel(logging.DEBUG)
 
+import wandb
+wandb.init(project="hinglish")
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fontsize=14):
     """Prints a confusion matrix, as returned by sklearn.metrics.confusion_matrix, as a heatmap.
@@ -203,7 +205,7 @@ def evaulate_and_save_prediction_results(
         prediction_data, sampler=prediction_sampler, batch_size=batch_size
     )
 
-    logger.info(
+    wandb.log(
         "Predicting labels for {:,} valid sentences...\n".format(len(prediction_inputs))
     )
 
@@ -268,7 +270,7 @@ def prep_input(sentences, tokenizer, MAX_LEN):
 
             input_ids.append(encoded_sent)
         if not sent : 
-            logger.info(f"NAN sent detected {sent}")
+            wandb.log(f"NAN sent detected {sent}")
 
     input_ids = pad_sequences(
         input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post"
@@ -362,9 +364,9 @@ def add_padding(tokenizer, input_ids, name):
 
     MAX_LEN = 300
 
-    logger.info("\nPadding/truncating all sentences to %d values...\n" % MAX_LEN)
+    wandb.log("\nPadding/truncating all sentences to %d values...\n" % MAX_LEN)
 
-    logger.info(
+    wandb.log(
         '\nPadding token: "{:}", ID: {:}\n'.format(
             tokenizer.pad_token, tokenizer.pad_token_id
         )
@@ -379,24 +381,24 @@ def add_padding(tokenizer, input_ids, name):
         padding="post",
     )
 
-    logger.info("\nDone.")
+    wandb.log("\nDone.")
     return input_ids, MAX_LEN
 
 
 def tokenize_the_sentences(sentences, model_name, lm_model_dir):
 
     if model_name == "bert":
-        logger.info("Loading BERT tokenizer...\n")
+        wandb.log("Loading BERT tokenizer...\n")
         tokenizer = BertTokenizer.from_pretrained(lm_model_dir)
     elif model_name == "distilbert":
-        logger.info("Loading DistilBERT tokenizer...\n")
+        wandb.log("Loading DistilBERT tokenizer...\n")
         tokenizer = DistilBertTokenizer.from_pretrained(lm_model_dir)
     elif model_name == "roberta":
-        logger.info("Loading Roberta tokenizer...\n")
+        wandb.log("Loading Roberta tokenizer...\n")
         tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
     tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
-    logger.info("Tokenize the first sentence:\n")
-    logger.info(str(tokenized_texts[0]))
+    wandb.log("Tokenize the first sentence:\n")
+    wandb.log(str(tokenized_texts[0]))
     input_ids = []
     for sent in sentences:
 
@@ -418,7 +420,7 @@ def save_model(full_output, model, tokenizer, model_name):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    logger.info("Saving model to %s\n" % output_dir)
+    wandb.log("Saving model to %s\n" % output_dir)
 
     model_to_save = model.module if hasattr(model, "module") else model
     model_to_save.save_pretrained(output_dir)
@@ -456,7 +458,7 @@ def train_model(
 ):
     for epoch_i in range(0, epochs):
 
-        logger.info("Training...\n")
+        wandb.log("Training...\n")
 
         t0 = time.time()
 
@@ -468,13 +470,13 @@ def train_model(
             clear_output(wait=True)
 
             if step % 40 == 0 and not step == 0:
-                logger.info(
+                wandb.log(
                     "======== Epoch {:} / {:} ========\n".format(epoch_i + 1, epochs)
                 )
 
                 elapsed = format_time(time.time() - t0)
 
-                logger.info(
+                wandb.log(
                     "  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.\n".format(
                         step, len(train_dataloader), elapsed
                     )
@@ -518,18 +520,18 @@ def train_model(
 
         loss_values.append(avg_train_loss)
 
-        logger.info("")
-        logger.info("  Average training loss: {0:.2f}\n".format(avg_train_loss))
-        logger.info(
+        wandb.log("")
+        wandb.log("  Average training loss: {0:.2f}\n".format(avg_train_loss))
+        wandb.log(
             "  Training epoch took: {:}\n".format(format_time(time.time() - t0))
         )
 
-    logger.info("\n")
-    logger.info("Training complete!\n")
+    wandb.log("\n")
+    wandb.log("Training complete!\n")
 
 
 def run_valid(model, model_name, validation_dataloader, device):
-    logger.info("Running Validation...\n")
+    wandb.log("Running Validation...\n")
     t0 = time.time()
     model.eval()
     eval_loss, eval_accuracy = 0, 0
@@ -555,11 +557,11 @@ def run_valid(model, model_name, validation_dataloader, device):
         validation_dataloader,
         device,
     )
-    logger.info("  Accuracy: {0:.2f}\n".format(eval_accuracy / nb_eval_steps))
-    logger.info(
+    wandb.log("  Accuracy: {0:.2f}\n".format(eval_accuracy / nb_eval_steps))
+    wandb.log(
         f"  Precision, Recall F1: {eval_p/nb_eval_steps}, {eval_r/nb_eval_steps}, {eval_f1/nb_eval_steps}\n"
     )
-    logger.info("  Validation took: {:}\n".format(format_time(time.time() - t0)))
+    wandb.log("  Validation took: {:}\n".format(format_time(time.time() - t0)))
 
 
 def evaluate_data_for_one_epochs(
