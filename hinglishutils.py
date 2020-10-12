@@ -493,14 +493,12 @@ def train_model(
             optimizer.step()
 
             scheduler.step()
-        run_valid(model, model_name, validation_dataloader, device)
 
-        elapsed = format_time(time.time() - t0)
-        avg_train_loss = total_loss / len(train_dataloader)
-
-        loss_values.append(avg_train_loss)
-
-        wandb.log({"Average training loss": avg_train_loss})
+            if step % 40 == 0 and not step == 0:
+                run_valid(model, model_name, validation_dataloader, device)
+                avg_train_loss = total_loss / len(train_dataloader)
+                loss_values.append(avg_train_loss)
+                wandb.log({"Training loss": avg_train_loss})
 
     print("Training complete!\n")
 
@@ -537,14 +535,14 @@ def run_valid(model, model_name, validation_dataloader, device):
         {
             "Valid Precision": (eval_p / nb_eval_steps),
             "Valid Recall": (eval_r / nb_eval_steps),
-            "Valid F1": (eval_f1 / nb_eval_steps)
+            "Valid F1": (eval_f1 / nb_eval_steps),
         }
     )
     wandb.log(
         {
             "Valid Precision": (eval_p / nb_eval_steps),
             "Valid Recall": (eval_r / nb_eval_steps),
-            "Valid F1": (eval_f1 / nb_eval_steps)
+            "Valid F1": (eval_f1 / nb_eval_steps),
         }
     )
 
@@ -577,12 +575,12 @@ def evaluate_data_for_one_epochs(
         logits = logits.detach().cpu().numpy()
         label_ids = b_labels.to("cpu").numpy()
         tmp_eval_accuracy = flat_accuracy(logits, label_ids)
-        temp_eval_f1 = flat_prf(logits, label_ids)
+        temp_eval_prf = flat_prf(logits, label_ids)
 
         eval_accuracy += tmp_eval_accuracy
-        eval_p += temp_eval_f1[0]
-        eval_r += temp_eval_f1[1]
-        eval_f1 += temp_eval_f1[2]
+        eval_p += temp_eval_prf[0]
+        eval_r += temp_eval_prf[1]
+        eval_f1 += temp_eval_prf[2]
 
         nb_eval_steps += 1
     return eval_accuracy, nb_eval_steps, eval_p, eval_r, eval_f1
