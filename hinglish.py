@@ -45,6 +45,7 @@ import wandb
 
 wandb.init(project="hinglish")
 
+
 class HinglishTrainer:
     def __init__(
         self,
@@ -63,19 +64,25 @@ class HinglishTrainer:
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
         fh.setLevel(logging.INFO)
-        wandb.log(f"Setup self.model training for {model_name}")
-        wandb.log(f"log file name -- {self.model_name}_{self.timestamp}.log")
-        wandb.log(f"---- Parameters for this self.model ----")
-        wandb.log(f"Model Name - {self.model_name}")
-        wandb.log(f"Batch Size - {self.batch_size}")
+        wandb.log({"Model Info": f"Setup self.model training for {model_name}"})
         wandb.log(
-            f"Attention_probs_dropout_prob - {self.attention_probs_dropout_prob}"
+            {"Model Info": f"log file name -- {self.model_name}_{self.timestamp}.log"}
         )
-        wandb.log(f"Learning Rate - {self.learning_rate}")
-        wandb.log(f"Adam Rpsilon - {self.adam_epsilon}")
-        wandb.log(f"Hidden Dropout Probability - {self.hidden_dropout_prob}")
-        wandb.log(f"Epochs - {self.epochs}")
-        wandb.log("--------------------------------")
+        wandb.log({"Model Info": f"---- Parameters for this self.model ----"})
+        wandb.log({"Model Info": f"Model Name - {self.model_name}"})
+        wandb.log({"Model Info": f"Batch Size - {self.batch_size}"})
+        wandb.log(
+            {
+                "Model Info": f"Attention_probs_dropout_prob - {self.attention_probs_dropout_prob}"
+            }
+        )
+        wandb.log({"Model Info": f"Learning Rate - {self.learning_rate}"})
+        wandb.log({"Model Info": f"Adam Rpsilon - {self.adam_epsilon}"})
+        wandb.log(
+            {"Model Info": f"Hidden Dropout Probability - {self.hidden_dropout_prob}"}
+        )
+        wandb.log({"Model Info": f"Epochs - {self.epochs}"})
+        wandb.log({"Model Info": "--------------------------------"})
         self.device = check_for_gpu(self.model_name)
         if not lm_model_dir:
             if self.model_name == "bert":
@@ -164,11 +171,6 @@ class HinglishTrainer:
             final_name=dev_json,
             name=self.model_name,
         )
-        # wandb.log("Printing Eval Metrics")
-        # wandb.log(precision_recall_fscore_support(
-        #     output["Sentiment"], output["sentiment"], average="macro"
-        # ))
-        # wandb.log(str(accuracy_score(output["Sentiment"], output["sentiment"])))
 
         full_output = evaulate_and_save_prediction_results(
             self.tokenizer,
@@ -179,12 +181,12 @@ class HinglishTrainer:
             final_name=test_json,
             name=self.model_name,
         )
-        wandb.log("Printing Test Metrics")
         l = pd.read_csv(test_labels)
-        wandb.log(
-            precision_recall_fscore_support(
-                full_output["Sentiment"], l["Sentiment"], average="macro"
-            )
+        prf = precision_recall_fscore_support(
+            full_output["Sentiment"], l["Sentiment"], average="macro"
         )
-        wandb.log(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
+        wandb.log({"Precision": prf[0], "Recall": prf[1], "F1": prf[2]})
+        wandb.log(
+            {"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))}
+        )
         save_model(full_output, self.model, self.tokenizer, self.model_name)
