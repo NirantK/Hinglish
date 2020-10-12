@@ -448,21 +448,6 @@ def train_model(
         model.train()
 
         for step, batch in enumerate(train_dataloader):
-            clear_output(wait=True)
-
-            if step % 40 == 0 and not step == 0:
-                print({"Epoch": epoch_i + 1, "Total Epochs": epochs})
-
-                elapsed = format_time(time.time() - t0)
-
-                print(
-                    {
-                        "Batch": step,
-                        "Total Batches": len(train_dataloader),
-                        "Elapsed": elapsed,
-                    }
-                )
-
             b_input_ids = batch[0].to(device)
             b_input_mask = batch[1].to(device)
             b_labels = batch[2].to(device)
@@ -531,13 +516,6 @@ def run_valid(model, model_name, validation_dataloader, device):
         device,
     )
     wandb.log({"Valid Accuracy": eval_accuracy / nb_eval_steps})
-    print(
-        {
-            "Valid Precision": (eval_p / nb_eval_steps),
-            "Valid Recall": (eval_r / nb_eval_steps),
-            "Valid F1": (eval_f1 / nb_eval_steps),
-        }
-    )
     wandb.log(
         {
             "Valid Precision": (eval_p / nb_eval_steps),

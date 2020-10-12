@@ -183,8 +183,9 @@ class HinglishTrainer:
         prf = precision_recall_fscore_support(
             full_output["Sentiment"], l["Sentiment"], average="macro"
         )
-        wandb.log({"Precision": prf[0], "Recall": prf[1], "F1": prf[2]})
-        wandb.log(
+        print("Model Values on Test Labels")
+        print({"Precision": prf[0], "Recall": prf[1], "F1": prf[2]})
+        print(
             {"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))}
         )
         save_model(full_output, self.model, self.tokenizer, self.model_name)
