@@ -495,12 +495,12 @@ def train_model(
             scheduler.step()
             run_valid(model, model_name, validation_dataloader, device)
 
-        elapsed = format_time(time.time() - t0)
-        avg_train_loss = total_loss / len(train_dataloader)
+            elapsed = format_time(time.time() - t0)
+            avg_train_loss = total_loss / len(train_dataloader)
 
-        loss_values.append(avg_train_loss)
+            loss_values.append(avg_train_loss)
 
-        wandb.log({"Average Epoch training loss": avg_train_loss})
+            wandb.log({"Average training loss": avg_train_loss})
 
     print("Training complete!\n")
 
