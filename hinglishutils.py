@@ -489,7 +489,6 @@ def train_model(
 
 
 def run_valid(model, model_name, validation_dataloader, device):
-    print("Running Validation...\n")
     t0 = time.time()
     model.eval()
     eval_loss, eval_accuracy = 0, 0
