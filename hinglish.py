@@ -58,7 +58,18 @@ class HinglishTrainer:
         drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
-        wandb.init(project="hinglish")
+        wandb.init(
+            project="hinglish",
+            config={
+                "model_name": self.model_name,
+                "batch_size": self.batch_size,
+                "attention_probs_dropout_prob": self.attention_probs_dropout_prob,
+                "learning_rate": self.learning_rate,
+                "adam_epsilon": self.adam_epsilon,
+                "hidden_dropout_prob": self.hidden_dropout_prob,
+                "epochs": self.epochs,
+            },
+        )
         self.timestamp = str(datetime.timestamp(datetime.now()))
         fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
         fh.setLevel(logging.INFO)
