@@ -84,7 +84,7 @@ class HinglishTrainer:
             if self.model_name == "bert":
                 self.lm_model_dir = "model_save"
             elif self.model_name == "distilbert":
-                self.lm_model_dir = "distilbert6"
+                self.lm_model_dir = "distilBert6"
             elif self.model_name == "roberta":
                 self.lm_model_dir = "roberta3"
 
