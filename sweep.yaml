@@ -1,0 +1,35 @@
+method: bayes
+metric:
+  goal: minimize
+  name: Valid F1
+parameters:
+  adam_epsilon:
+    distribution: uniform
+    max: 0.0001944
+    min: 2.045e-05
+  attention_probs_dropout_prob:
+    distribution: uniform
+    max: 1.6
+    min: 0.2
+  batch_size:
+    distribution: int_uniform
+    max: 32
+    min: 2
+  epochs:
+    distribution: int_uniform
+    max: 6
+    min: 2
+  hidden_dropout_prob:
+    distribution: uniform
+    max: 1.2
+    min: 0.1
+  learning_rate:
+    distribution: uniform
+    max: 0.0001026
+    min: 1.51e-05
+  model_name:
+    distribution: categorical
+    values:
+    - distilbert
+    - bert
+program: train.py
