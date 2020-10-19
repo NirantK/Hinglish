@@ -1,30 +1,8 @@
-import logging
-import os
-import random
-import time
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import torch
 from fastcore.utils import store_attr
-from IPython.display import clear_output
-from keras.preprocessing.sequence import pad_sequences
-from sklearn import preprocessing
-from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
-from transformers import (
-    AdamW,
-    BertConfig,
-    BertForSequenceClassification,
-    BertTokenizer,
-    DistilBertTokenizer,
-    RobertaTokenizer,
-    get_cosine_with_hard_restarts_schedule_with_warmup,
-    get_linear_schedule_with_warmup,
-)
-
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from transformers import AdamW
+import pandas as pd
+from transformers import get_linear_schedule_with_warmup
 from hinglishutils import (
     add_padding,
     check_for_gpu,
@@ -41,9 +19,7 @@ from hinglishutils import (
     train_model,
 )
 from datetime import datetime
-
-logger = logging.getLogger("hinglish")
-logger.setLevel(logging.DEBUG)
+import wandb
 
 
 class HinglishTrainer:
@@ -57,33 +33,33 @@ class HinglishTrainer:
         hidden_dropout_prob: float = 0.3,
         epochs: int = 3,
         lm_model_dir: str = None,
+        wname=None,
         drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
-
-        self.timestamp = str(datetime.timestamp(datetime.now()))
-        fh = logging.FileHandler(f"{self.model_name}_{self.timestamp}.log")
-        fh.setLevel(logging.INFO)
-        logger.addHandler(fh)
-        logger.info(f"Setup self.model training for {model_name}")
-        logger.info(f"log file name -- {self.model_name}_{self.timestamp}.log")
-        logger.info(f"---- Parameters for this self.model ----")
-        logger.info(f"Model Name - {self.model_name}")
-        logger.info(f"Batch Size - {self.batch_size}")
-        logger.info(
-            f"Attention_probs_dropout_prob - {self.attention_probs_dropout_prob}"
+        self.timestamp = str(datetime.now().strftime("%d.%m.%y"))
+        if not self.wname:
+            self.wname = self.model_name
+        wandb.init(
+            project="hinglish",
+            config={
+                "model_name": self.model_name,
+                "batch_size": self.batch_size,
+                "attention_probs_dropout_prob": self.attention_probs_dropout_prob,
+                "learning_rate": self.learning_rate,
+                "adam_epsilon": self.adam_epsilon,
+                "hidden_dropout_prob": self.hidden_dropout_prob,
+                "epochs": self.epochs,
+            },
+            name=f"{self.wname} {self.timestamp}",
         )
-        logger.info(f"Learning Rate - {self.learning_rate}")
-        logger.info(f"Adam Rpsilon - {self.adam_epsilon}")
-        logger.info(f"Hidden Dropout Probability - {self.hidden_dropout_prob}")
-        logger.info(f"Epochs - {self.epochs}")
-        logger.info("--------------------------------")
+        print({"Model Info": f"Setup self.model training for {model_name}"})
         self.device = check_for_gpu(self.model_name)
         if not lm_model_dir:
             if self.model_name == "bert":
                 self.lm_model_dir = "model_save"
             elif self.model_name == "distilbert":
-                self.lm_model_dir = "distilbert6"
+                self.lm_model_dir = "distilBert6"
             elif self.model_name == "roberta":
                 self.lm_model_dir = "roberta3"
 
@@ -166,11 +142,6 @@ class HinglishTrainer:
             final_name=dev_json,
             name=self.model_name,
         )
-        # logger.info("Printing Eval Metrics")
-        # logger.info(precision_recall_fscore_support(
-        #     output["Sentiment"], output["sentiment"], average="macro"
-        # ))
-        # logger.info(str(accuracy_score(output["Sentiment"], output["sentiment"])))
 
         full_output = evaulate_and_save_prediction_results(
             self.tokenizer,
@@ -181,12 +152,12 @@ class HinglishTrainer:
             final_name=test_json,
             name=self.model_name,
         )
-        logger.info("Printing Test Metrics")
         l = pd.read_csv(test_labels)
-        logger.info(
-            precision_recall_fscore_support(
-                full_output["Sentiment"], l["Sentiment"], average="macro"
-            )
+        prf = precision_recall_fscore_support(
+            full_output["Sentiment"], l["Sentiment"], average="macro"
         )
-        logger.info(str(accuracy_score(full_output["Sentiment"], l["Sentiment"])))
+        wandb.log({"Precision": prf[0], "Recall": prf[1], "F1": prf[2]})
+        wandb.log(
+            {"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))}
+        )
         save_model(full_output, self.model, self.tokenizer, self.model_name)

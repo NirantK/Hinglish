@@ -1,25 +1,23 @@
-import datetime
-import logging
-import os
-import random
 import re
-import time
 
 import gdown
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+import numpy as np
 import seaborn as sns
 import torch
 import tarfile
-from IPython.display import clear_output
 from keras.preprocessing.sequence import pad_sequences
 from sklearn import preprocessing
-from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
+from torch.utils.data import (
+    DataLoader,
+    RandomSampler,
+    SequentialSampler,
+    TensorDataset
+)
 from transformers import (
-    AdamW,
     BertConfig,
     BertForSequenceClassification,
     BertTokenizer,
@@ -28,27 +26,31 @@ from transformers import (
     DistilBertTokenizer,
     RobertaConfig,
     RobertaForSequenceClassification,
-    RobertaTokenizer,
-    get_cosine_with_hard_restarts_schedule_with_warmup,
-    get_linear_schedule_with_warmup,
+    RobertaTokenizer
 )
-
-logger = logging.getLogger("hinglish")
-logger.setLevel(logging.DEBUG)
+import os
+import time
+import random
+import wandb
+import datetime
 
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fontsize=14):
-    """Prints a confusion matrix, as returned by sklearn.metrics.confusion_matrix, as a heatmap.
+    """Prints a confusion matrix, as returned by 
+    sklearn.metrics.confusion_matrix, as a heatmap.
 
     Arguments
     ---------
     confusion_matrix: numpy.ndarray
-        The numpy.ndarray object returned from a call to sklearn.metrics.confusion_matrix.
+        The numpy.ndarray object returned from a call 
+        to sklearn.metrics.confusion_matrix.
         Similarly constructed ndarrays can also be used.
     class_names: list
-        An ordered list of class names, in the order they index the given confusion matrix.
+        An ordered list of class names, in the order they index the 
+        given confusion matrix.
     figsize: tuple
-        A 2-long tuple, the first value determining the horizontal size of the ouputted figure,
+        A 2-long tuple, the first value determining the horizontal 
+        size of the outputed figure,
         the second determining the vertical size. Defaults to (10,7).
     fontsize: int
         Font size for axes labels. Defaults to 14.
@@ -89,9 +91,10 @@ def get_files_from_gdrive(url: str, fname: str) -> None:
     file_id = url.split("/")[5]
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, fname, quiet=False)
-    if fname[-3:] =="tar":
+    if fname[-3:] == "tar":
         tf = tarfile.open(fname)
         tf.extractall()
+
 
 def clean(df, col):
     """Cleaning Twiitter data
@@ -202,11 +205,6 @@ def evaulate_and_save_prediction_results(
     prediction_dataloader = DataLoader(
         prediction_data, sampler=prediction_sampler, batch_size=batch_size
     )
-
-    logger.info(
-        "Predicting labels for {:,} valid sentences...\n".format(len(prediction_inputs))
-    )
-
     model.eval()
 
     predictions = get_preds_from_model(prediction_dataloader, device, model)
@@ -225,6 +223,7 @@ def evaulate_and_save_prediction_results(
         }
     )
     output_df.to_csv(f"{name}-{final_name[:-5]}-output-df.csv")
+    wandb.save(f"{name}-{final_name[:-5]}-output-df.csv")
     proba = [item for sublist in predictions for item in sublist]
     preds = np.argmax(proba, axis=1).flatten()
     full_output = output_df
@@ -232,6 +231,7 @@ def evaulate_and_save_prediction_results(
     full_output["proba_neutral"] = pd.DataFrame(proba)[1]
     full_output["proba_positive"] = pd.DataFrame(proba)[2]
     full_output.to_csv(f"{name}-{final_name[:-5]}-full-output.csv")
+    wandb.save(f"{name}-{final_name[:-5]}-full-output.csv")
     return full_output
 
 
@@ -260,15 +260,15 @@ def prep_input(sentences, tokenizer, MAX_LEN):
     input_ids = []
 
     for sent in sentences:
-        if sent : 
+        if sent:
             encoded_sent = tokenizer.encode(
                 sent,
                 add_special_tokens=True,
             )
 
             input_ids.append(encoded_sent)
-        if not sent : 
-            logger.info(f"NAN sent detected {sent}")
+        if not sent:
+            print(f"NAN sent detected {sent}")
 
     input_ids = pad_sequences(
         input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post"
@@ -362,14 +362,6 @@ def add_padding(tokenizer, input_ids, name):
 
     MAX_LEN = 300
 
-    logger.info("\nPadding/truncating all sentences to %d values...\n" % MAX_LEN)
-
-    logger.info(
-        '\nPadding token: "{:}", ID: {:}\n'.format(
-            tokenizer.pad_token, tokenizer.pad_token_id
-        )
-    )
-
     input_ids = pad_sequences(
         input_ids,
         maxlen=MAX_LEN,
@@ -378,25 +370,21 @@ def add_padding(tokenizer, input_ids, name):
         truncating="post",
         padding="post",
     )
-
-    logger.info("\nDone.")
     return input_ids, MAX_LEN
 
 
 def tokenize_the_sentences(sentences, model_name, lm_model_dir):
 
     if model_name == "bert":
-        logger.info("Loading BERT tokenizer...\n")
+        print("Loading BERT tokenizer...\n")
         tokenizer = BertTokenizer.from_pretrained(lm_model_dir)
     elif model_name == "distilbert":
-        logger.info("Loading DistilBERT tokenizer...\n")
+        print("Loading DistilBERT tokenizer...\n")
         tokenizer = DistilBertTokenizer.from_pretrained(lm_model_dir)
     elif model_name == "roberta":
-        logger.info("Loading Roberta tokenizer...\n")
+        print("Loading Roberta tokenizer...\n")
         tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
     tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
-    logger.info("Tokenize the first sentence:\n")
-    logger.info(str(tokenized_texts[0]))
     input_ids = []
     for sent in sentences:
 
@@ -412,17 +400,17 @@ def tokenize_the_sentences(sentences, model_name, lm_model_dir):
 
 def save_model(full_output, model, tokenizer, model_name):
     full_output.to_csv(f"{model_name}_preds.csv")
+    wandb.save(f"{model_name}_preds.csv")
 
     output_dir = f"./{model_name}/"
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    logger.info("Saving model to %s\n" % output_dir)
-
     model_to_save = model.module if hasattr(model, "module") else model
     model_to_save.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
+    wandb.save(f"{output_dir}/*")
 
 
 def load_lm_model(config, model_name, lm_model_dir):
@@ -456,8 +444,6 @@ def train_model(
 ):
     for epoch_i in range(0, epochs):
 
-        logger.info("Training...\n")
-
         t0 = time.time()
 
         total_loss = 0
@@ -465,21 +451,6 @@ def train_model(
         model.train()
 
         for step, batch in enumerate(train_dataloader):
-            clear_output(wait=True)
-
-            if step % 40 == 0 and not step == 0:
-                logger.info(
-                    "======== Epoch {:} / {:} ========\n".format(epoch_i + 1, epochs)
-                )
-
-                elapsed = format_time(time.time() - t0)
-
-                logger.info(
-                    "  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.\n".format(
-                        step, len(train_dataloader), elapsed
-                    )
-                )
-
             b_input_ids = batch[0].to(device)
             b_input_mask = batch[1].to(device)
             b_labels = batch[2].to(device)
@@ -511,25 +482,16 @@ def train_model(
 
             scheduler.step()
 
-        elapsed = format_time(time.time() - t0)
-        run_valid(model, model_name, validation_dataloader, device)
+            if step % 40 == 0 and not step == 0:
+                run_valid(model, model_name, validation_dataloader, device)
+                avg_train_loss = total_loss / len(train_dataloader)
+                loss_values.append(avg_train_loss)
+                wandb.log({"Training loss": avg_train_loss})
 
-        avg_train_loss = total_loss / len(train_dataloader)
-
-        loss_values.append(avg_train_loss)
-
-        logger.info("")
-        logger.info("  Average training loss: {0:.2f}\n".format(avg_train_loss))
-        logger.info(
-            "  Training epoch took: {:}\n".format(format_time(time.time() - t0))
-        )
-
-    logger.info("\n")
-    logger.info("Training complete!\n")
+    print("Training complete!\n")
 
 
 def run_valid(model, model_name, validation_dataloader, device):
-    logger.info("Running Validation...\n")
     t0 = time.time()
     model.eval()
     eval_loss, eval_accuracy = 0, 0
@@ -555,11 +517,14 @@ def run_valid(model, model_name, validation_dataloader, device):
         validation_dataloader,
         device,
     )
-    logger.info("  Accuracy: {0:.2f}\n".format(eval_accuracy / nb_eval_steps))
-    logger.info(
-        f"  Precision, Recall F1: {eval_p/nb_eval_steps}, {eval_r/nb_eval_steps}, {eval_f1/nb_eval_steps}\n"
+    wandb.log({"Valid Accuracy": eval_accuracy / nb_eval_steps})
+    wandb.log(
+        {
+            "Valid Precision": (eval_p / nb_eval_steps),
+            "Valid Recall": (eval_r / nb_eval_steps),
+            "Valid F1": (eval_f1 / nb_eval_steps),
+        }
     )
-    logger.info("  Validation took: {:}\n".format(format_time(time.time() - t0)))
 
 
 def evaluate_data_for_one_epochs(
@@ -590,12 +555,12 @@ def evaluate_data_for_one_epochs(
         logits = logits.detach().cpu().numpy()
         label_ids = b_labels.to("cpu").numpy()
         tmp_eval_accuracy = flat_accuracy(logits, label_ids)
-        temp_eval_f1 = flat_prf(logits, label_ids)
+        temp_eval_prf = flat_prf(logits, label_ids)
 
         eval_accuracy += tmp_eval_accuracy
-        eval_p += temp_eval_f1[0]
-        eval_r += temp_eval_f1[1]
-        eval_f1 += temp_eval_f1[2]
+        eval_p += temp_eval_prf[0]
+        eval_r += temp_eval_prf[1]
+        eval_f1 += temp_eval_prf[2]
 
         nb_eval_steps += 1
     return eval_accuracy, nb_eval_steps, eval_p, eval_r, eval_f1
