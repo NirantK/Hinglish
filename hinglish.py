@@ -1,30 +1,7 @@
-import logging
-import os
-import random
-import time
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import torch
 from fastcore.utils import store_attr
-from IPython.display import clear_output
-from keras.preprocessing.sequence import pad_sequences
-from sklearn import preprocessing
-from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
-from transformers import (
-    AdamW,
-    BertConfig,
-    BertForSequenceClassification,
-    BertTokenizer,
-    DistilBertTokenizer,
-    RobertaTokenizer,
-    get_cosine_with_hard_restarts_schedule_with_warmup,
-    get_linear_schedule_with_warmup,
-)
-
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from transformers import AdamW
+import pandas as pd
 from hinglishutils import (
     add_padding,
     check_for_gpu,
@@ -38,6 +15,7 @@ from hinglishutils import (
     save_model,
     set_seed,
     tokenize_the_sentences,
+    get_linear_schedule_with_warmup,
     train_model,
 )
 from datetime import datetime
@@ -76,7 +54,6 @@ class HinglishTrainer:
             name=f"{self.wname} {self.timestamp}",
         )
         print({"Model Info": f"Setup self.model training for {model_name}"})
-        print({"Model Info": f"log file name -- {self.model_name}_{self.timestamp}.log"})
         self.device = check_for_gpu(self.model_name)
         if not lm_model_dir:
             if self.model_name == "bert":
@@ -88,8 +65,12 @@ class HinglishTrainer:
 
     def setup(self):
         sentences, labels, self.le = load_sentences_and_labels()
-        self.tokenizer, input_ids = tokenize_the_sentences(sentences, self.model_name, self.lm_model_dir)
-        input_ids, self.MAX_LEN = add_padding(self.tokenizer, input_ids, self.model_name)
+        self.tokenizer, input_ids = tokenize_the_sentences(
+            sentences, self.model_name, self.lm_model_dir
+        )
+        input_ids, self.MAX_LEN = add_padding(
+            self.tokenizer, input_ids, self.model_name
+        )
         attention_masks = create_attention_masks(input_ids)
         (
             train_inputs,
@@ -172,7 +153,11 @@ class HinglishTrainer:
             name=self.model_name,
         )
         l = pd.read_csv(test_labels)
-        prf = precision_recall_fscore_support(full_output["Sentiment"], l["Sentiment"], average="macro")
+        prf = precision_recall_fscore_support(
+            full_output["Sentiment"], l["Sentiment"], average="macro"
+        )
         wandb.log({"Precision": prf[0], "Recall": prf[1], "F1": prf[2]})
-        wandb.log({"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))})
+        wandb.log(
+            {"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))}
+        )
         save_model(full_output, self.model, self.tokenizer, self.model_name)
