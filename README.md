@@ -1,6 +1,8 @@
 # Hinglish
 Tools and Data
 
+[Data and Model files](https://drive.google.com/drive/folders/12qEbxbefBY24-YqahVV0v7q_IFyxz3L8?usp=sharing)
+
 ![Logo](./Hinglish-Logo.png)
 
 
