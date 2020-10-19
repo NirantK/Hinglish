@@ -113,9 +113,7 @@ def flat_accuracy(preds, labels):
 def flat_prf(preds, labels):
     pred_flat = np.argmax(preds, axis=1).flatten()
     labels_flat = labels.flatten()
-    return precision_recall_fscore_support(
-        labels_flat, pred_flat, labels=[0, 1, 2], average="macro"
-    )
+    return precision_recall_fscore_support(labels_flat, pred_flat, labels=[0, 1, 2], average="macro")
 
 
 def format_time(elapsed):
@@ -156,9 +154,7 @@ def check_for_gpu(name):
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def load_sentences_and_labels(
-    train_json="train.json", text_col="clean_text", label_col="sentiment"
-):
+def load_sentences_and_labels(train_json="train.json", text_col="clean_text", label_col="sentiment"):
     train_df = pd.read_json(train_json)
     sentences = train_df[text_col]
     labels = train_df[label_col]
@@ -188,9 +184,7 @@ def evaulate_and_save_prediction_results(
 
     prediction_data = TensorDataset(prediction_inputs, prediction_masks)
     prediction_sampler = SequentialSampler(prediction_data)
-    prediction_dataloader = DataLoader(
-        prediction_data, sampler=prediction_sampler, batch_size=batch_size
-    )
+    prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
     model.eval()
 
     predictions = get_preds_from_model(prediction_dataloader, device, model)
@@ -256,9 +250,7 @@ def prep_input(sentences, tokenizer, MAX_LEN):
         if not sent:
             print(f"NAN sent detected {sent}")
 
-    input_ids = pad_sequences(
-        input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post"
-    )
+    input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
 
     attention_masks = []
 
@@ -290,17 +282,11 @@ def make_dataloaders(
 
     train_data = TensorDataset(train_inputs, train_masks, train_labels)
     train_sampler = RandomSampler(train_data)
-    train_dataloader = DataLoader(
-        train_data, sampler=train_sampler, batch_size=batch_size
-    )
+    train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=batch_size)
 
-    validation_data = TensorDataset(
-        validation_inputs, validation_masks, validation_labels
-    )
+    validation_data = TensorDataset(validation_inputs, validation_masks, validation_labels)
     validation_sampler = SequentialSampler(validation_data)
-    validation_dataloader = DataLoader(
-        validation_data, sampler=validation_sampler, batch_size=batch_size
-    )
+    validation_dataloader = DataLoader(validation_data, sampler=validation_sampler, batch_size=batch_size)
     return train_dataloader, validation_dataloader
 
 
@@ -310,9 +296,7 @@ def load_masks_and_inputs(input_ids, labels, attention_masks):
         input_ids, labels, random_state=2018, test_size=0.1
     )
 
-    train_masks, validation_masks, _, _ = train_test_split(
-        attention_masks, labels, random_state=2018, test_size=0.1
-    )
+    train_masks, validation_masks, _, _ = train_test_split(attention_masks, labels, random_state=2018, test_size=0.1)
 
     train_inputs = torch.tensor(train_inputs)
     validation_inputs = torch.tensor(validation_inputs)
@@ -401,17 +385,11 @@ def save_model(full_output, model, tokenizer, model_name):
 
 def load_lm_model(config, model_name, lm_model_dir):
     if model_name == "bert":
-        model = BertForSequenceClassification.from_pretrained(
-            lm_model_dir, config=config
-        )
+        model = BertForSequenceClassification.from_pretrained(lm_model_dir, config=config)
     elif model_name == "distilbert":
-        model = DistilBertForSequenceClassification.from_pretrained(
-            lm_model_dir, config=config
-        )
+        model = DistilBertForSequenceClassification.from_pretrained(lm_model_dir, config=config)
     if model_name == "roberta":
-        model = RobertaForSequenceClassification.from_pretrained(
-            lm_model_dir, config=config
-        )
+        model = RobertaForSequenceClassification.from_pretrained(lm_model_dir, config=config)
     model.cuda()
     params = list(model.named_parameters())
     return model
@@ -486,13 +464,7 @@ def run_valid(model, model_name, validation_dataloader, device):
     eval_r = 0
     eval_f1 = 0
 
-    (
-        eval_accuracy,
-        nb_eval_steps,
-        eval_p,
-        eval_r,
-        eval_f1,
-    ) = evaluate_data_for_one_epochs(
+    (eval_accuracy, nb_eval_steps, eval_p, eval_r, eval_f1,) = evaluate_data_for_one_epochs(
         eval_accuracy,
         eval_p,
         eval_r,
@@ -532,9 +504,7 @@ def evaluate_data_for_one_epochs(
 
         with torch.no_grad():
             if model_name == "bert":
-                outputs = model(
-                    b_input_ids, token_type_ids=None, attention_mask=b_input_mask
-                )
+                outputs = model(b_input_ids, token_type_ids=None, attention_mask=b_input_mask)
             else:
                 outputs = model(b_input_ids, attention_mask=b_input_mask)
         logits = outputs[0]
