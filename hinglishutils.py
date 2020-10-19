@@ -1,40 +1,9 @@
-import datetime
-import logging
-import os
-import random
 import re
-import time
 
 import gdown
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
-import torch
-import tarfile
-from IPython.display import clear_output
-from keras.preprocessing.sequence import pad_sequences
-from sklearn import preprocessing
-from sklearn.metrics import accuracy_score, f1_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
-from transformers import (
-    AdamW,
-    BertConfig,
-    BertForSequenceClassification,
-    BertTokenizer,
-    DistilBertConfig,
-    DistilBertForSequenceClassification,
-    DistilBertTokenizer,
-    RobertaConfig,
-    RobertaForSequenceClassification,
-    RobertaTokenizer,
-    get_cosine_with_hard_restarts_schedule_with_warmup,
-    get_linear_schedule_with_warmup,
-)
-
-logger = logging.getLogger("hinglish")
-logger.setLevel(logging.DEBUG)
 
 
 def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fontsize=14):
@@ -68,12 +37,8 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fonts
         heatmap = sns.heatmap(df_cm, annot=True, fmt="d")
     except ValueError:
         raise ValueError("Confusion matrix values must be integers.")
-    heatmap.yaxis.set_ticklabels(
-        heatmap.yaxis.get_ticklabels(), rotation=0, ha="right", fontsize=fontsize
-    )
-    heatmap.xaxis.set_ticklabels(
-        heatmap.xaxis.get_ticklabels(), rotation=45, ha="right", fontsize=fontsize
-    )
+    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha="right", fontsize=fontsize)
+    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha="right", fontsize=fontsize)
     plt.ylabel("True label")
     plt.xlabel("Predicted label")
 
@@ -89,9 +54,6 @@ def get_files_from_gdrive(url: str, fname: str) -> None:
     file_id = url.split("/")[5]
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, fname, quiet=False)
-    if fname[-3:] =="tar":
-        tf = tarfile.open(fname)
-        tf.extractall()
 
 def clean(df, col):
     """Cleaning Twiitter data

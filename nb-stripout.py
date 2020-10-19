@@ -10,12 +10,8 @@ if sys.stdin:
 output_stream = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "-t", "--textconv", action="store_true", help="Print results to output"
-)
-parser.add_argument(
-    "-d", "--doc-mode", action="store_true", help="fastai docs nb-specific strip out"
-)
+parser.add_argument("-t", "--textconv", action="store_true", help="Print results to output")
+parser.add_argument("-d", "--doc-mode", action="store_true", help="fastai docs nb-specific strip out")
 parser.add_argument("files", nargs="*", help="Files to strip output from")
 args = parser.parse_args()
 
@@ -42,11 +38,7 @@ def clean_cell_docs(o):
         for l in o["outputs"]:
             clean_cell_outputs(l)
 
-    o["metadata"] = {
-        k: o["metadata"][k]
-        for k in o["metadata"].keys()
-        if k in cell_metadata_keep_docs
-    }
+    o["metadata"] = {k: o["metadata"][k] for k in o["metadata"].keys() if k in cell_metadata_keep_docs}
     return o
 
 
@@ -75,9 +67,7 @@ clean_cell = clean_cell_code if not args.doc_mode else clean_cell_docs
 
 def clean_nb(s):
     s["cells"] = [clean_cell(o) for o in s["cells"]]
-    s["metadata"] = {
-        k: s["metadata"][k] for k in s["metadata"].keys() if k in nb_metadata_keep
-    }
+    s["metadata"] = {k: s["metadata"][k] for k in s["metadata"].keys() if k in nb_metadata_keep}
 
 
 for filename in args.files:
