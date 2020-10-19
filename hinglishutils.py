@@ -79,7 +79,7 @@ def get_files_from_gdrive(url: str, fname: str) -> None:
     file_id = url.split("/")[5]
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, fname, quiet=False)
-    if fname[-3:] == "tar""
+    if fname[-3:] == "tar":
         tf = tarfile.open(fname)
         tf.extractall()
 
