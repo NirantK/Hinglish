@@ -55,7 +55,7 @@ def hinglishbert(
     learning_rate=5e-7,
     adam_epsilon=1e-8,
     hidden_dropout_prob=0.3,
-    input_name = "bert"
+    input_name="bert",
 ):
     global name
     name = input_name
@@ -112,9 +112,7 @@ def hinglishbert(
     def flat_prf(preds, labels):
         pred_flat = np.argmax(preds, axis=1).flatten()
         labels_flat = labels.flatten()
-        return precision_recall_fscore_support(
-            labels_flat, pred_flat, labels=[0, 1, 2], average="macro"
-        )
+        return precision_recall_fscore_support(labels_flat, pred_flat, labels=[0, 1, 2], average="macro")
 
     def format_time(elapsed):
         """
@@ -156,18 +154,14 @@ def hinglishbert(
             eval_p,
             eval_r,
             eval_f1,
-        ) = evaluate_data_for_one_epochs(
-            eval_accuracy, eval_p, eval_r, eval_f1, nb_eval_steps
-        )
+        ) = evaluate_data_for_one_epochs(eval_accuracy, eval_p, eval_r, eval_f1, nb_eval_steps)
         open(f"{name}.log", "a").write("  Accuracy: {0:.2f}\n".format(eval_accuracy / nb_eval_steps))
         open(f"{name}.log", "a").write(
             f"  Precision, Recall F1: {eval_p/nb_eval_steps}, {eval_r/nb_eval_steps}, {eval_f1/nb_eval_steps}\n"
         )
         open(f"{name}.log", "a").write("  Validation took: {:}\n".format(format_time(time.time() - t0)))
 
-    def evaluate_data_for_one_epochs(
-        eval_accuracy, eval_p, eval_r, eval_f1, nb_eval_steps
-    ):
+    def evaluate_data_for_one_epochs(eval_accuracy, eval_p, eval_r, eval_f1, nb_eval_steps):
         for batch in validation_dataloader:
 
             # Add batch to GPU
@@ -187,9 +181,7 @@ def hinglishbert(
                 # differentiates sentence 1 and 2 in 2-sentence tasks.
                 # The documentation for this `model` function is here:
                 # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
-                outputs = model(
-                    b_input_ids, token_type_ids=None, attention_mask=b_input_mask
-                )
+                outputs = model(b_input_ids, token_type_ids=None, attention_mask=b_input_mask)
 
             # Get the "logits" output by the model. The "logits" are the output
             # values prior to applying an activation function like the softmax.
@@ -240,9 +232,7 @@ def hinglishbert(
     full_output = evaluate_final_text(tokenizer, MAX_LEN, model, device, le, final_name="final_test.json")
 
     l = pd.read_csv("test_labels_hinglish.txt")
-    precision_recall_fscore_support(
-        full_output["Sentiment"], l["Sentiment"][:-1], average="macro"
-    )
+    precision_recall_fscore_support(full_output["Sentiment"], l["Sentiment"][:-1], average="macro")
     open(f"{name}.log", "a").write(str(accuracy_score(full_output["Sentiment"], l["Sentiment"][:-1])))
 
     save_model(full_output, model, tokenizer)
@@ -261,9 +251,7 @@ def save_model(full_output, model, tokenizer):
 
     # Save a trained model, configuration and tokenizer using `save_pretrained()`.
     # They can then be reloaded using `from_pretrained()`
-    model_to_save = (
-        model.module if hasattr(model, "module") else model
-    )  # Take care of distributed/parallel training
+    model_to_save = model.module if hasattr(model, "module") else model  # Take care of distributed/parallel training
     model_to_save.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
 
@@ -295,9 +283,7 @@ def evaluate_final_text(tokenizer, MAX_LEN, model, device, le, final_name):
         input_ids.append(encoded_sent)
 
     # Pad our input tokens
-    input_ids = pad_sequences(
-        input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post"
-    )
+    input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
 
     # Create attention masks
     attention_masks = []
@@ -317,15 +303,11 @@ def evaluate_final_text(tokenizer, MAX_LEN, model, device, le, final_name):
     # Create the DataLoader.
     prediction_data = TensorDataset(prediction_inputs, prediction_masks)
     prediction_sampler = SequentialSampler(prediction_data)
-    prediction_dataloader = DataLoader(
-        prediction_data, sampler=prediction_sampler, batch_size=batch_size
-    )
+    prediction_dataloader = DataLoader(prediction_data, sampler=prediction_sampler, batch_size=batch_size)
 
     # Prediction on valid set
 
-    open(f"{name}.log", "a").write(
-        "Predicting labels for {:,} valid sentences...\n".format(len(prediction_inputs))
-    )
+    open(f"{name}.log", "a").write("Predicting labels for {:,} valid sentences...\n".format(len(prediction_inputs)))
 
     # Put model in evaluation mode
     model.eval()
@@ -428,9 +410,7 @@ def train_model(
 
                 # Report progress.
                 open(f"{name}.log", "a").write(
-                    "  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.\n".format(
-                        step, len(train_dataloader), elapsed
-                    )
+                    "  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.\n".format(step, len(train_dataloader), elapsed)
                 )
 
             # Unpack this training batch from our dataloader.
@@ -536,18 +516,12 @@ def make_dataloaders(
     # Create the DataLoader for our training set.
     train_data = TensorDataset(train_inputs, train_masks, train_labels)
     train_sampler = RandomSampler(train_data)
-    train_dataloader = DataLoader(
-        train_data, sampler=train_sampler, batch_size=batch_size
-    )
+    train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=batch_size)
 
     # Create the DataLoader for our validation set.
-    validation_data = TensorDataset(
-        validation_inputs, validation_masks, validation_labels
-    )
+    validation_data = TensorDataset(validation_inputs, validation_masks, validation_labels)
     validation_sampler = SequentialSampler(validation_data)
-    validation_dataloader = DataLoader(
-        validation_data, sampler=validation_sampler, batch_size=batch_size
-    )
+    validation_dataloader = DataLoader(validation_data, sampler=validation_sampler, batch_size=batch_size)
     return train_dataloader, validation_dataloader
 
 
@@ -557,9 +531,7 @@ def load_masks_and_inputs(input_ids, labels, attention_masks):
         input_ids, labels, random_state=2018, test_size=0.1
     )
     # Do the same for the masks.
-    train_masks, validation_masks, _, _ = train_test_split(
-        attention_masks, labels, random_state=2018, test_size=0.1
-    )
+    train_masks, validation_masks, _, _ = train_test_split(attention_masks, labels, random_state=2018, test_size=0.1)
 
     # Convert all inputs and labels into torch tensors, the required datatype
     # for our model.
@@ -607,9 +579,7 @@ def add_padding(tokenizer, input_ids):
     open(f"{name}.log", "a").write("\nPadding/truncating all sentences to %d values...\n" % MAX_LEN)
 
     open(f"{name}.log", "a").write(
-        '\nPadding token: "{:}", ID: {:}\n'.format(
-            tokenizer.pad_token, tokenizer.pad_token_id
-        )
+        '\nPadding token: "{:}", ID: {:}\n'.format(tokenizer.pad_token, tokenizer.pad_token_id)
     )
 
     # Pad our input tokens with value 0.
