@@ -61,17 +61,8 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fonts
         heatmap = sns.heatmap(df_cm, annot=True, fmt="d")
     except ValueError:
         raise ValueError("Confusion matrix values must be integers.")
-<<<<<<< HEAD
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha="right", fontsize=fontsize)
     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha="right", fontsize=fontsize)
-=======
-    heatmap.yaxis.set_ticklabels(
-        heatmap.yaxis.get_ticklabels(), rotation=0, ha="right", fontsize=fontsize
-    )
-    heatmap.xaxis.set_ticklabels(
-        heatmap.xaxis.get_ticklabels(), rotation=45, ha="right", fontsize=fontsize
-    )
->>>>>>> master
     plt.ylabel("True label")
     plt.xlabel("Predicted label")
 
@@ -87,16 +78,8 @@ def get_files_from_gdrive(url: str, fname: str) -> None:
     file_id = url.split("/")[5]
     url = f"https://drive.google.com/uc?id={file_id}"
     gdown.download(url, fname, quiet=False)
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    if fname[-3:] =="tar":
-=======
-    if fname[-3:] == "tar":
->>>>>>> wandb
-        tf = tarfile.open(fname)
-        tf.extractall()
->>>>>>> master
+    tf = tarfile.open(fname)
+    tf.extractall()
 
 
 def clean(df, col):

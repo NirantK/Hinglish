@@ -76,9 +76,7 @@ class HinglishTrainer:
             name=f"{self.wname} {self.timestamp}",
         )
         print({"Model Info": f"Setup self.model training for {model_name}"})
-        print(
-            {"Model Info": f"log file name -- {self.model_name}_{self.timestamp}.log"}
-        )
+        print({"Model Info": f"log file name -- {self.model_name}_{self.timestamp}.log"})
         self.device = check_for_gpu(self.model_name)
         if not lm_model_dir:
             if self.model_name == "bert":
@@ -90,12 +88,8 @@ class HinglishTrainer:
 
     def setup(self):
         sentences, labels, self.le = load_sentences_and_labels()
-        self.tokenizer, input_ids = tokenize_the_sentences(
-            sentences, self.model_name, self.lm_model_dir
-        )
-        input_ids, self.MAX_LEN = add_padding(
-            self.tokenizer, input_ids, self.model_name
-        )
+        self.tokenizer, input_ids = tokenize_the_sentences(sentences, self.model_name, self.lm_model_dir)
+        input_ids, self.MAX_LEN = add_padding(self.tokenizer, input_ids, self.model_name)
         attention_masks = create_attention_masks(input_ids)
         (
             train_inputs,
@@ -178,11 +172,7 @@ class HinglishTrainer:
             name=self.model_name,
         )
         l = pd.read_csv(test_labels)
-        prf = precision_recall_fscore_support(
-            full_output["Sentiment"], l["Sentiment"], average="macro"
-        )
+        prf = precision_recall_fscore_support(full_output["Sentiment"], l["Sentiment"], average="macro")
         wandb.log({"Precision": prf[0], "Recall": prf[1], "F1": prf[2]})
-        wandb.log(
-            {"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))}
-        )
+        wandb.log({"Accuracy": str(accuracy_score(full_output["Sentiment"], l["Sentiment"]))})
         save_model(full_output, self.model, self.tokenizer, self.model_name)
