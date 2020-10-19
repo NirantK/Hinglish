@@ -2,6 +2,7 @@ from fastcore.utils import store_attr
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from transformers import AdamW
 import pandas as pd
+from transformers import get_linear_schedule_with_warmup
 from hinglishutils import (
     add_padding,
     check_for_gpu,
@@ -15,7 +16,6 @@ from hinglishutils import (
     save_model,
     set_seed,
     tokenize_the_sentences,
-    get_linear_schedule_with_warmup,
     train_model,
 )
 from datetime import datetime
