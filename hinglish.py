@@ -37,8 +37,6 @@ class HinglishTrainer:
     ):
         store_attr()
         self.timestamp = str(datetime.now().strftime("%d.%m.%y"))
-        if not self.wname:
-            self.wname = self.model_name
         self.config = modify_transformer_config(
             self.batch_size,
             self.attention_probs_dropout_prob,
@@ -48,6 +46,8 @@ class HinglishTrainer:
             self.model_path,
         )
         self.model_name = self.config.model_type
+        if not self.wname:
+            self.wname = self.model_name
         wandb.init(
             project="hinglish",
             config={
