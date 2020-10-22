@@ -60,7 +60,7 @@ class HinglishTrainer:
             },
             name=f"{self.wname} {self.timestamp}",
         )
-        print({"Model Info": f"Setup self.model training for {model_name}"})
+        print({"Model Info": f"Setup self.model training for {self.model_name}"})
         self.device = check_for_gpu(self.model_name)
 
     def setup(self):
