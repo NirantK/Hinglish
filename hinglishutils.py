@@ -394,7 +394,7 @@ def save_model(full_output, model, tokenizer, model_name):
 
 
 def load_lm_model(config, model_name, model_path):
-    model = AutoModelForSequenceClassification.from_pretrained(model_path, config)
+    model = AutoModelForSequenceClassification.from_pretrained(model_path, config=config)
     model.cuda()
     params = list(model.named_parameters())
     return model
