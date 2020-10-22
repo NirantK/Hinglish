@@ -50,14 +50,7 @@ class HinglishTrainer:
             self.wname = self.model_name
         wandb.init(
             project="hinglish",
-            config={
-                "batch_size": self.batch_size,
-                "attention_probs_dropout_prob": self.attention_probs_dropout_prob,
-                "learning_rate": self.learning_rate,
-                "adam_epsilon": self.adam_epsilon,
-                "hidden_dropout_prob": self.hidden_dropout_prob,
-                "epochs": self.epochs,
-            },
+            config=self.config
             name=f"{self.wname} {self.timestamp}",
         )
         print({"Model Info": f"Setup self.model training for {self.model_name}"})
