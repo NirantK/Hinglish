@@ -384,16 +384,8 @@ def tokenize_the_sentences(sentences, model_name, lm_model_dir):
     elif model_name == "roberta":
         print("Loading Roberta tokenizer...\n")
         tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
-    tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
-    input_ids = []
-    for sent in sentences:
 
-        encoded_sent = tokenizer.encode(
-            sent,
-            add_special_tokens=True,
-        )
-
-        input_ids.append(encoded_sent)
+    input_ids = tokenizer.encode(sentences, add_special_tokens=True)
 
     return tokenizer, input_ids
 
