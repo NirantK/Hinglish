@@ -10,7 +10,5 @@ seaborn==0.11.0
 tensorboardX==2.1
 torch==1.6.0
 tqdm==4.49.0
-transformers==3.3.1
 fastcore==1.0.13
 wandb==0.10.5
-git+https://www.github.com/nvidia/apex
