@@ -18,6 +18,7 @@ from torch.utils.data import (
     TensorDataset
 )
 from transformers import (
+<<<<<<< HEAD
     BertConfig,
     BertForSequenceClassification,
     BertTokenizer,
@@ -27,6 +28,11 @@ from transformers import (
     RobertaConfig,
     RobertaForSequenceClassification,
     RobertaTokenizer
+=======
+    AutoTokenizer, 
+    AutoModelForSequenceClassification,
+    AutoConfig
+>>>>>>> dev
 )
 import os
 import time
@@ -143,20 +149,14 @@ def format_time(elapsed):
 
 
 def modify_transformer_config(
-    model,
     batch_size=8,
     attention_probs_dropout_prob=0.4,
     learning_rate=5e-7,
     adam_epsilon=1e-8,
     hidden_dropout_prob=0.3,
-    lm_model_dir=None,
+    model_path=None,
 ):
-    if model == "bert":
-        config = BertConfig.from_json_file(f"{lm_model_dir}/config.json")
-    elif model == "distilbert":
-        config = DistilBertConfig.from_json_file(f"{lm_model_dir}/config.json")
-    elif model == "roberta":
-        config = RobertaConfig.from_json_file(f"{lm_model_dir}/config.json")
+    config = AutoConfig.from_pretrained(model_path)
     config.attention_probs_dropout_prob = attention_probs_dropout_prob
     config.do_sample = True
     config.num_beams = 500
@@ -373,8 +373,9 @@ def add_padding(tokenizer, input_ids, name):
     return input_ids, MAX_LEN
 
 
-def tokenize_the_sentences(sentences, model_name, lm_model_dir):
+def tokenize_the_sentences(sentences, model_name, model_path):
 
+<<<<<<< HEAD
     if model_name == "bert":
         print("Loading BERT tokenizer...\n")
         tokenizer = BertTokenizer.from_pretrained(lm_model_dir)
@@ -384,6 +385,9 @@ def tokenize_the_sentences(sentences, model_name, lm_model_dir):
     elif model_name == "roberta":
         print("Loading Roberta tokenizer...\n")
         tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
+=======
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+>>>>>>> dev
     tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
     input_ids = []
     for sent in sentences:
@@ -413,19 +417,8 @@ def save_model(full_output, model, tokenizer, model_name):
     wandb.save(f"{output_dir}/*")
 
 
-def load_lm_model(config, model_name, lm_model_dir):
-    if model_name == "bert":
-        model = BertForSequenceClassification.from_pretrained(
-            lm_model_dir, config=config
-        )
-    elif model_name == "distilbert":
-        model = DistilBertForSequenceClassification.from_pretrained(
-            lm_model_dir, config=config
-        )
-    if model_name == "roberta":
-        model = RobertaForSequenceClassification.from_pretrained(
-            lm_model_dir, config=config
-        )
+def load_lm_model(config, model_name, model_path):
+    model = AutoModelForSequenceClassification.from_pretrained(model_path, config=config)
     model.cuda()
     params = list(model.named_parameters())
     return model
