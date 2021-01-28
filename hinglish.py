@@ -32,17 +32,11 @@ class HinglishTrainer:
         adam_epsilon: float = 1e-8,
         hidden_dropout_prob: float = 0.3,
         epochs: int = 3,
-<<<<<<< HEAD
-        lm_model_dir: str = None,
-=======
->>>>>>> dev
         wname=None,
         drivepath="../drive/My\ Drive/HinglishNLP/repro",
     ):
         store_attr()
         self.timestamp = str(datetime.now().strftime("%d.%m.%y"))
-<<<<<<< HEAD
-=======
         self.config = modify_transformer_config(
             self.batch_size,
             self.attention_probs_dropout_prob,
@@ -52,39 +46,15 @@ class HinglishTrainer:
             self.model_path,
         )
         self.model_name = self.config.model_type
->>>>>>> dev
         if not self.wname:
             self.wname = self.model_name
         wandb.init(
             project="hinglish",
-<<<<<<< HEAD
-            config={
-                "model_name": self.model_name,
-                "batch_size": self.batch_size,
-                "attention_probs_dropout_prob": self.attention_probs_dropout_prob,
-                "learning_rate": self.learning_rate,
-                "adam_epsilon": self.adam_epsilon,
-                "hidden_dropout_prob": self.hidden_dropout_prob,
-                "epochs": self.epochs,
-            },
-            name=f"{self.wname} {self.timestamp}",
-        )
-        print({"Model Info": f"Setup self.model training for {model_name}"})
-        self.device = check_for_gpu(self.model_name)
-        if not lm_model_dir:
-            if self.model_name == "bert":
-                self.lm_model_dir = "model_save"
-            elif self.model_name == "distilbert":
-                self.lm_model_dir = "distilBert6"
-            elif self.model_name == "roberta":
-                self.lm_model_dir = "roberta3"
-=======
             config=self.config,
             name=f"{self.wname} {self.timestamp}",
         )
         print({"Model Info": f"Setup self.model training for {self.model_name}"})
         self.device = check_for_gpu(self.model_name)
->>>>>>> dev
 
     def setup(self):
         sentences, labels, self.le = load_sentences_and_labels()

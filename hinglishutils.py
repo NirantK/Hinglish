@@ -18,21 +18,9 @@ from torch.utils.data import (
     TensorDataset
 )
 from transformers import (
-<<<<<<< HEAD
-    BertConfig,
-    BertForSequenceClassification,
-    BertTokenizer,
-    DistilBertConfig,
-    DistilBertForSequenceClassification,
-    DistilBertTokenizer,
-    RobertaConfig,
-    RobertaForSequenceClassification,
-    RobertaTokenizer
-=======
     AutoTokenizer, 
     AutoModelForSequenceClassification,
     AutoConfig
->>>>>>> dev
 )
 import os
 import time
@@ -375,19 +363,7 @@ def add_padding(tokenizer, input_ids, name):
 
 def tokenize_the_sentences(sentences, model_name, model_path):
 
-<<<<<<< HEAD
-    if model_name == "bert":
-        print("Loading BERT tokenizer...\n")
-        tokenizer = BertTokenizer.from_pretrained(lm_model_dir)
-    elif model_name == "distilbert":
-        print("Loading DistilBERT tokenizer...\n")
-        tokenizer = DistilBertTokenizer.from_pretrained(lm_model_dir)
-    elif model_name == "roberta":
-        print("Loading Roberta tokenizer...\n")
-        tokenizer = RobertaTokenizer.from_pretrained(lm_model_dir)
-=======
     tokenizer = AutoTokenizer.from_pretrained(model_path)
->>>>>>> dev
     tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
     input_ids = []
     for sent in sentences:
