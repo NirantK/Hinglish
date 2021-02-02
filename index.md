@@ -1,37 +1,8 @@
-## Welcome to GitHub Pages
+# Hinglish
 
-You can use the [editor on GitHub](https://github.com/NirantK/Hinglish/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Hinglish is a code-mixed dialect where Hindi (or Urdu) is typed in the Roman script. In this project, we build NLP tools for the same and make Hinglish processing easier than ever.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Data
 
-### Markdown
+We begin with with a list of 1.4 million tweets which we believe to have roughly 75-80% Hinglish tweets. Note that not all tweets are in this dialect, some are possible from other languages like Indonesian or Malaysian Bahasa. 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/NirantK/Hinglish/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
